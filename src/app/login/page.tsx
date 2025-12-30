@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Chrome, Mail, Lock } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 
 export default function LoginPage() {
   const loginImage = PlaceHolderImages.find(p => p.id === 'hero-image');
@@ -35,22 +35,6 @@ export default function LoginPage() {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 gap-4">
-             <Button variant="outline" className="w-full bg-white/20 text-white hover:bg-white/30 border-white/30">
-                <Chrome className="mr-2 h-5 w-5" />
-                <span>Login with Google</span>
-            </Button>
-          </div>
-           <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t border-white/30" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white/10 px-2 text-white/80 rounded-full">
-                    Or continue with
-                    </span>
-                </div>
-            </div>
           <div className="grid gap-4">
             <div className="grid gap-2">
               <Label htmlFor="email" className="text-white/80">Email</Label>
