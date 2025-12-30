@@ -51,10 +51,10 @@ const medicalRecords = [
 export default function PatientDashboardPage() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const router = useRouter();
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Intentionally not setting a default date to avoid hydration issues.
-    // The user will select a date.
+    setIsClient(true);
   }, []);
 
   const handleRequestAppointment = () => {
@@ -179,7 +179,7 @@ export default function PatientDashboardPage() {
                 selected={date}
                 onSelect={setDate}
                 className="rounded-md border"
-                disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
+                disabled={!isClient ? () => true : (d) => d < new Date(new Date().setHours(0,0,0,0))}
               />
             </CardContent>
             <CardFooter>
