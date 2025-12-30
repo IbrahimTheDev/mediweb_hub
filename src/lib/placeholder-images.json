@@ -25,12 +25,6 @@
       "imageHint": "female doctor"
     },
     {
-      "id": "doctor-4",
-      "description": "Portrait of Dr. Isaac Miller.",
-      "imageUrl": "https://images.unsplash.com/photo-1622253692010-333f2da60710?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxkb2N0b3J8ZW58MHx8fHwxNzY3MTIxNjYyfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "doctor"
-    },
-    {
       "id": "doctor-5",
       "description": "Portrait of Dr. James Wilson.",
       "imageUrl": "https://images.unsplash.com/photo-1637059824899-a441006a6875?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxtYWxlJTIwZG9jdG9yfGVufDB8fHx8MTc2NzA3MzUwMnww&ixlib=rb-4.1.0&q=80&w=1080",

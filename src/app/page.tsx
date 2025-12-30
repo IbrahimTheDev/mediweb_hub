@@ -11,7 +11,6 @@ const doctors = [
   { name: "Dr. Emily Carter", specialty: "Cardiologist", imageId: "doctor-1", experience: "12+ years", availability: "Mon - Fri, 9am - 5pm" },
   { name: "Dr. Ben Adams", specialty: "Neurologist", imageId: "doctor-2", experience: "15+ years", availability: "Tue - Sat, 10am - 6pm" },
   { name: "Dr. Olivia Chen", specialty: "Pediatrician", imageId: "doctor-3", experience: "8+ years", availability: "Mon, Wed, Fri, 8am - 4pm" },
-  { name: "Dr. Isaac Miller", specialty: "Dermatologist", imageId: "doctor-4", experience: "10+ years", availability: "Tue, Thu, 9am - 3pm" },
   { name: "Dr. James Wilson", specialty: "Orthopedist", imageId: "doctor-5", experience: "9+ years", availability: "Mon - Thu, 8am - 5pm" },
 ];
 
@@ -121,7 +120,7 @@ export default function Home() {
                 Our team of experienced and dedicated medical professionals.
               </p>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {doctors.map((doctor) => {
                 const image = PlaceHolderImages.find(p => p.id === doctor.imageId);
                 return (
