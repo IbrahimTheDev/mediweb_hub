@@ -1,90 +1,77 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Logo } from "@/components/logo";
+import { PlaceHolderImages } from "@/lib/placeholder-images";
 
 export default function LoginPage() {
+  const loginImage = PlaceHolderImages.find(p => p.id === 'hero-image');
+
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <Tabs defaultValue="patient" className="w-full max-w-md">
-        <div className="flex justify-center mb-4">
-          <Link href="/" className="flex items-center gap-2 text-foreground">
-            <Logo />
-            <h1 className="text-xl font-bold font-headline">MediWeb Hub</h1>
-          </Link>
+    <div className="w-full lg:grid lg:min-h-[100vh] lg:grid-cols-2 xl:min-h-[100vh]">
+      <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+             <Link href="/" className="flex items-center gap-2 text-foreground justify-center mb-4">
+              <Logo />
+              <h1 className="text-3xl font-bold font-headline">MediWeb Hub</h1>
+            </Link>
+            <p className="text-balance text-muted-foreground">
+              Enter your email below to login to your account
+            </p>
+          </div>
+          <div className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+              />
+            </div>
+            <div className="grid gap-2">
+              <div className="flex items-center">
+                <Label htmlFor="password">Password</Label>
+                <Link
+                  href="#"
+                  className="ml-auto inline-block text-sm underline"
+                >
+                  Forgot your password?
+                </Link>
+              </div>
+              <Input id="password" type="password" required />
+            </div>
+            <div className="flex gap-2">
+                 <Button type="submit" className="w-full" asChild>
+                    <Link href="/patient/dashboard">Login as Patient</Link>
+                </Button>
+                <Button type="submit" variant="secondary" className="w-full" asChild>
+                    <Link href="/doctor/dashboard">Login as Doctor</Link>
+                </Button>
+            </div>
+          </div>
+          <div className="mt-4 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="underline">
+              Sign up
+            </Link>
+          </div>
         </div>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="patient">Patient Login</TabsTrigger>
-          <TabsTrigger value="doctor">Doctor Login</TabsTrigger>
-        </TabsList>
-        <TabsContent value="patient">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Patient Login</CardTitle>
-              <CardDescription>
-                Access your patient dashboard to manage your health.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="patient-email">Email</Label>
-                <Input id="patient-email" type="email" placeholder="m@example.com" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="patient-password">Password</Label>
-                <Input id="patient-password" type="password" required />
-              </div>
-              <Button type="submit" className="w-full" asChild>
-                <Link href="/patient/dashboard">Login as Patient</Link>
-              </Button>
-              <div className="mt-4 text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link href="/signup" className="underline">
-                  Sign up
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-        <TabsContent value="doctor">
-          <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Doctor Login</CardTitle>
-              <CardDescription>
-                Access your professional dashboard.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="doctor-email">Email</Label>
-                <Input id="doctor-email" type="email" placeholder="doctor@mediweb.com" required />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="doctor-password">Password</Label>
-                <Input id="doctor-password" type="password" required />
-              </div>
-              <Button type="submit" className="w-full" asChild>
-                <Link href="/doctor/dashboard">Login as Doctor</Link>
-              </Button>
-               <div className="mt-4 text-center text-sm">
-                Don&apos;t have an account?{" "}
-                <Link href="/signup" className="underline">
-                  Sign up
-                </Link>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      </div>
+      <div className="hidden bg-muted lg:block relative">
+        {loginImage && (
+            <Image
+              src={loginImage.imageUrl}
+              alt={loginImage.description}
+              fill
+              className="object-cover"
+              data-ai-hint={loginImage.imageHint}
+            />
+        )}
+      </div>
     </div>
   );
 }
