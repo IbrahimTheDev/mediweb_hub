@@ -53,7 +53,8 @@ export default function PatientDashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    setDate(new Date());
+    // Intentionally not setting a default date to avoid hydration issues.
+    // The user will select a date.
   }, []);
 
   const handleRequestAppointment = () => {
@@ -155,7 +156,7 @@ export default function PatientDashboardPage() {
                               <div className="text-sm text-muted-foreground">{record.date}</div>
                             </TableCell>
                             <TableCell className="text-right">
-                              <Button variant="outline" size="sm"><Download className="h-3 w-3 mr-2"/>Download</Button>
+                              <Button variant="outline" size="sm" onClick={() => alert(`Downloading ${record.record}...`)}><Download className="h-3 w-3 mr-2"/>Download</Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -178,6 +179,7 @@ export default function PatientDashboardPage() {
                 selected={date}
                 onSelect={setDate}
                 className="rounded-md border"
+                disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
               />
             </CardContent>
             <CardFooter>
