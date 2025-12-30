@@ -174,13 +174,19 @@ export default function PatientDashboardPage() {
               <CardDescription>Choose a date that works for you.</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
-              <Calendar
-                mode="single"
-                selected={date}
-                onSelect={setDate}
-                className="rounded-md border"
-                disabled={!isClient ? () => true : (d) => d < new Date(new Date().setHours(0,0,0,0))}
-              />
+              {isClient ? (
+                <Calendar
+                  mode="single"
+                  selected={date}
+                  onSelect={setDate}
+                  className="rounded-md border"
+                  disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
+                />
+              ) : (
+                <div className="p-3">
+                  <div className="w-[280px] h-[337px] rounded-md border" />
+                </div>
+              )}
             </CardContent>
             <CardFooter>
               <Button className="w-full" onClick={handleRequestAppointment} disabled={!date}>Request Appointment</Button>
