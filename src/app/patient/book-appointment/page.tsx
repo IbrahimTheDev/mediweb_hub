@@ -8,8 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { useState } from "react";
-import { format, parseISO } from "date-fns";
+import { useState, useEffect } from "react";
+import { format, parseISO, isValid } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 
@@ -20,15 +20,33 @@ export default function BookAppointmentPage() {
   const { toast } = useToast();
   const router = useRouter();
 
-  const [date, setDate] = useState<Date | undefined>(
-    dateParam ? parseISO(dateParam) : new Date()
-  );
+  const [date, setDate] = useState<Date | undefined>(undefined);
+
+  useEffect(() => {
+    if (dateParam) {
+      const parsedDate = parseISO(dateParam);
+      if (isValid(parsedDate)) {
+        setDate(parsedDate);
+        return;
+      }
+    }
+    setDate(new Date());
+  }, [dateParam]);
+
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!date) {
+        toast({
+            variant: 'destructive',
+            title: "No date selected!",
+            description: `Please select a date for your appointment.`,
+        });
+        return;
+    }
     toast({
         title: "Appointment Requested!",
-        description: `Your request for ${format(date!, 'PPP')} has been submitted.`,
+        description: `Your request for ${format(date, 'PPP')} has been submitted.`,
     });
     router.push('/patient/dashboard');
   };

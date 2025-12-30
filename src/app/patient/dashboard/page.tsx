@@ -27,7 +27,7 @@ import {
   Download,
   CalendarDays,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 
@@ -49,8 +49,12 @@ const medicalRecords = [
 ];
 
 export default function PatientDashboardPage() {
-  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const router = useRouter();
+
+  useEffect(() => {
+    setDate(new Date());
+  }, []);
 
   const handleRequestAppointment = () => {
     if (date) {
