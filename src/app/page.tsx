@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Stethoscope, HeartPulse, Pill, Microscope, Calendar, Clock } from "lucide-react";
+import { Stethoscope, HeartPulse, Pill, Microscope, Calendar, Clock, MapPin, Phone, Mail } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 const heroImage = PlaceHolderImages.find(p => p.id === 'hero-image');
@@ -171,6 +171,40 @@ export default function Home() {
               <Button size="lg" variant="outline" asChild>
                 <Link href="/login">Patient Login</Link>
               </Button>
+            </div>
+          </div>
+        </section>
+
+        <section id="contact" className="border-t">
+          <div className="container py-16 lg:py-24">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-headline font-bold">Get In Touch</h2>
+              <p className="text-lg text-muted-foreground mt-2 max-w-2xl mx-auto">
+                We're here to help. Contact us with any questions or to schedule an appointment.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+              <div className="flex flex-col items-center">
+                <div className="mb-4 bg-primary/10 rounded-full p-4 w-fit">
+                    <MapPin className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-headline font-semibold mb-2">Our Address</h3>
+                <p className="text-muted-foreground">123 Health St, Wellness City, 45678</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="mb-4 bg-primary/10 rounded-full p-4 w-fit">
+                    <Phone className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-headline font-semibold mb-2">Phone</h3>
+                <p className="text-muted-foreground">(123) 456-7890</p>
+              </div>
+              <div className="flex flex-col items-center">
+                <div className="mb-4 bg-primary/10 rounded-full p-4 w-fit">
+                    <Mail className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="text-xl font-headline font-semibold mb-2">Email</h3>
+                <p className="text-muted-foreground">contact@mediwebhub.com</p>
+              </div>
             </div>
           </div>
         </section>
