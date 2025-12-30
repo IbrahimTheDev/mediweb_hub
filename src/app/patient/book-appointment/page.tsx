@@ -8,13 +8,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useState, useEffect } from "react";
-import { format, parseISO, isValid } from "date-fns";
+import { parseISO, isValid } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { CalendarIcon, ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
 const steps = [
@@ -119,43 +117,31 @@ export default function BookAppointmentPage() {
                 {currentStep === 2 && (
                     <div className="space-y-4">
                         <Label className="text-lg font-medium">Select a date and time</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Popover>
-                                <PopoverTrigger asChild>
-                                    <Button
-                                        variant={"outline"}
-                                        className={cn(
-                                        "w-full justify-start text-left font-normal h-12 text-base",
-                                        !date && "text-muted-foreground"
-                                        )}
-                                    >
-                                        <CalendarIcon className="mr-2 h-4 w-4" />
-                                        {date ? format(date, "PPP") : <span>Pick a date</span>}
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-auto p-0">
-                                {isClient && (
-                                    <Calendar
-                                        mode="single"
-                                        selected={date}
-                                        onSelect={setDate}
-                                        disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                        initialFocus
-                                    />
-                                )}
-                                </PopoverContent>
-                            </Popover>
-                            <Select required>
-                                <SelectTrigger className="h-12 text-base">
-                                <SelectValue placeholder="Select a time slot" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                <SelectItem value="1000">10:00 AM</SelectItem>
-                                <SelectItem value="1100">11:00 AM</SelectItem>
-                                <SelectItem value="1400">02:00 PM</SelectItem>
-                                <SelectItem value="1500">03:00 PM</SelectItem>
-                                </SelectContent>
-                            </Select>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
+                           <div className="flex justify-center">
+                            {isClient && (
+                                <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    onSelect={setDate}
+                                    disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
+                                    className="rounded-md border"
+                                />
+                            )}
+                           </div>
+                            <div className="space-y-4">
+                                <Select required>
+                                    <SelectTrigger className="h-12 text-base">
+                                    <SelectValue placeholder="Select a time slot" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                    <SelectItem value="1000">10:00 AM</SelectItem>
+                                    <SelectItem value="1100">11:00 AM</SelectItem>
+                                    <SelectItem value="1400">02:00 PM</SelectItem>
+                                    <SelectItem value="1500">03:00 PM</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
                     </div>
                 )}
