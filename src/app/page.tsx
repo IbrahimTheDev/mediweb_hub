@@ -3,14 +3,14 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Stethoscope, HeartPulse, Pill, Microscope } from "lucide-react";
+import { Stethoscope, HeartPulse, Pill, Microscope, Calendar, Clock } from "lucide-react";
 import { Logo } from "@/components/logo";
 
 const heroImage = PlaceHolderImages.find(p => p.id === 'hero-image');
 const doctors = [
-  { name: "Dr. Emily Carter", specialty: "Cardiologist", imageId: "doctor-1" },
-  { name: "Dr. Ben Adams", specialty: "Neurologist", imageId: "doctor-2" },
-  { name: "Dr. Olivia Chen", specialty: "Pediatrician", imageId: "doctor-3" },
+  { name: "Dr. Emily Carter", specialty: "Cardiologist", imageId: "doctor-1", experience: "12+ years", availability: "Mon - Fri, 9am - 5pm" },
+  { name: "Dr. Ben Adams", specialty: "Neurologist", imageId: "doctor-2", experience: "15+ years", availability: "Tue - Sat, 10am - 6pm" },
+  { name: "Dr. Olivia Chen", specialty: "Pediatrician", imageId: "doctor-3", experience: "8+ years", availability: "Mon, Wed, Fri, 8am - 4pm" },
 ];
 
 const services = [
@@ -123,7 +123,7 @@ export default function Home() {
               {doctors.map((doctor) => {
                 const image = PlaceHolderImages.find(p => p.id === doctor.imageId);
                 return (
-                  <Card key={doctor.name} className="overflow-hidden group">
+                  <Card key={doctor.name} className="overflow-hidden group flex flex-col">
                     {image && (
                       <div className="relative h-80 w-full">
                          <Image
@@ -140,6 +140,16 @@ export default function Home() {
                       <CardTitle className="font-headline">{doctor.name}</CardTitle>
                       <p className="text-primary font-medium">{doctor.specialty}</p>
                     </CardHeader>
+                    <CardContent className="flex-grow space-y-2">
+                        <div className="flex items-center text-sm text-muted-foreground">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            <span>{doctor.experience} experience</span>
+                        </div>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                            <Clock className="mr-2 h-4 w-4" />
+                            <span>{doctor.availability}</span>
+                        </div>
+                    </CardContent>
                   </Card>
                 );
               })}
