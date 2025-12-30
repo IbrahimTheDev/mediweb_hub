@@ -1,3 +1,7 @@
+
+"use client";
+
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -23,41 +27,57 @@ import {
   Download,
   CalendarDays,
 } from "lucide-react";
+import { useState } from "react";
+import { format } from "date-fns";
+import { useRouter } from "next/navigation";
+
 
 const appointments = [
-  { date: "2024-08-15", time: "10:00 AM", doctor: "Dr. Emily Carter", type: "Cardiology Check-up" },
-  { date: "2024-09-02", time: "02:30 PM", doctor: "Dr. Ben Adams", type: "Neurology Consultation" },
+  { id: "apt-001", date: "2024-08-15", time: "10:00 AM", doctor: "Dr. Emily Carter", type: "Cardiology Check-up" },
+  { id: "apt-002", date: "2024-09-02", time: "02:30 PM", doctor: "Dr. Ben Adams", type: "Neurology Consultation" },
 ];
 
 const testResults = [
-  { date: "2024-07-20", test: "Lipid Panel", status: "Results Available" },
-  { date: "2024-07-11", test: "Complete Blood Count", status: "Results Available" },
+  { id: "res-001", date: "2024-07-20", test: "Lipid Panel", status: "Results Available" },
+  { id: "res-002", date: "2024-07-11", test: "Complete Blood Count", status: "Results Available" },
 ];
 
 const medicalRecords = [
-    { date: "2024-08-15", record: "Consultation Note - Dr. Carter" },
-    { date: "2024-07-20", record: "Lab Results - Lipid Panel" },
-    { date: "2024-07-11", record: "Lab Results - CBC" },
+    { id: "rec-001", date: "2024-08-15", record: "Consultation Note - Dr. Carter" },
+    { id: "rec-002", date: "2024-07-20", record: "Lab Results - Lipid Panel" },
+    { id: "rec-003", date: "2024-07-11", record: "Lab Results - CBC" },
 ];
 
 export default function PatientDashboardPage() {
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const router = useRouter();
+
+  const handleRequestAppointment = () => {
+    if (date) {
+      router.push(`/patient/book-appointment?date=${format(date, 'yyyy-MM-dd')}`);
+    }
+  };
+
+
   return (
     <div className="space-y-8">
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Upcoming Appointments
-            </CardTitle>
-            <CalendarDays className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{appointments.length}</div>
-            <p className="text-xs text-muted-foreground">
-              You have {appointments.length} appointments scheduled.
-            </p>
-          </CardContent>
-        </Card>
+        <Link href="/patient/appointments" className="block">
+          <Card className="hover:bg-muted/50 transition-colors">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Upcoming Appointments
+              </CardTitle>
+              <CalendarDays className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{appointments.length}</div>
+              <p className="text-xs text-muted-foreground">
+                You have {appointments.length} appointments scheduled.
+              </p>
+            </CardContent>
+          </Card>
+        </Link>
       </div>
 
       <div className="grid gap-8 lg:grid-cols-5">
@@ -65,7 +85,7 @@ export default function PatientDashboardPage() {
             <Card id="appointments" className="scroll-mt-20">
               <CardHeader>
                 <CardTitle className="font-headline flex items-center gap-2"><CalendarPlus/>Upcoming Appointments</CardTitle>
-                <CardDescription>Review your upcoming visits.</CardDescription>
+                <CardDescription>Review your upcoming visits. <Link href="/patient/appointments" className="text-primary hover:underline">View all</Link></CardDescription>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -77,8 +97,8 @@ export default function PatientDashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {appointments.map((appt, i) => (
-                      <TableRow key={i}>
+                    {appointments.map((appt) => (
+                      <TableRow key={appt.id} className="cursor-pointer" onClick={() => router.push(`/patient/appointments/${appt.id}`)}>
                         <TableCell>{appt.date} at {appt.time}</TableCell>
                         <TableCell>{appt.doctor}</TableCell>
                         <TableCell>{appt.type}</TableCell>
@@ -93,19 +113,21 @@ export default function PatientDashboardPage() {
                 <Card id="results" className="scroll-mt-20">
                   <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2"><FlaskConical/>Test Results</CardTitle>
-                    <CardDescription>View your latest lab results.</CardDescription>
+                     <CardDescription>View your latest lab results. <Link href="/patient/test-results" className="text-primary hover:underline">View all</Link></CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Table>
                       <TableBody>
-                        {testResults.map((result, i) => (
-                          <TableRow key={i}>
+                        {testResults.map((result) => (
+                          <TableRow key={result.id}>
                             <TableCell>
                               <div className="font-medium">{result.test}</div>
                               <div className="text-sm text-muted-foreground">{result.date}</div>
                             </TableCell>
                             <TableCell className="text-right">
-                              <Button variant="outline" size="sm"><Download className="h-3 w-3 mr-2"/>View</Button>
+                              <Button variant="outline" size="sm" asChild>
+                                <Link href={`/patient/test-results/${result.id}`}><Download className="h-3 w-3 mr-2"/>View</Link>
+                              </Button>
                             </TableCell>
                           </TableRow>
                         ))}
@@ -117,13 +139,13 @@ export default function PatientDashboardPage() {
                 <Card id="records" className="scroll-mt-20">
                   <CardHeader>
                     <CardTitle className="font-headline flex items-center gap-2"><FileText/>Medical Records</CardTitle>
-                    <CardDescription>Access your health history.</CardDescription>
+                    <CardDescription>Access your health history. <Link href="/patient/medical-records" className="text-primary hover:underline">View all</Link></CardDescription>
                   </CardHeader>
                   <CardContent>
                     <Table>
                       <TableBody>
-                        {medicalRecords.map((record, i) => (
-                          <TableRow key={i}>
+                        {medicalRecords.map((record) => (
+                          <TableRow key={record.id}>
                              <TableCell>
                               <div className="font-medium">{record.record}</div>
                               <div className="text-sm text-muted-foreground">{record.date}</div>
@@ -149,11 +171,13 @@ export default function PatientDashboardPage() {
             <CardContent className="flex justify-center">
               <Calendar
                 mode="single"
+                selected={date}
+                onSelect={setDate}
                 className="rounded-md border"
               />
             </CardContent>
             <CardFooter>
-              <Button className="w-full">Request Appointment</Button>
+              <Button className="w-full" onClick={handleRequestAppointment} disabled={!date}>Request Appointment</Button>
             </CardFooter>
           </Card>
         </div>

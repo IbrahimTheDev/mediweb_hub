@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -37,9 +38,9 @@ import {
 
 const navItems = [
   { href: "/patient/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/patient/dashboard#appointments", icon: CalendarPlus, label: "Book Appointment" },
-  { href: "/patient/dashboard#results", icon: FlaskConical, label: "Test Results" },
-  { href: "/patient/dashboard#records", icon: FileText, label: "Medical Records" },
+  { href: "/patient/appointments", icon: CalendarPlus, label: "Appointments" },
+  { href: "/patient/test-results", icon: FlaskConical, label: "Test Results" },
+  { href: "/patient/medical-records", icon: FileText, label: "Medical Records" },
 ];
 
 export default function PatientLayout({
@@ -48,6 +49,14 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+
+  const getIsActive = (href: string) => {
+    if (href === "/patient/dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
+
 
   return (
     <SidebarProvider>
@@ -64,7 +73,7 @@ export default function PatientLayout({
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === item.href.split('#')[0]}
+                  isActive={getIsActive(item.href)}
                   tooltip={item.label}
                 >
                   <Link href={item.href}>
