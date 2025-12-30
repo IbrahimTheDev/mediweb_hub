@@ -10,11 +10,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
-import { parseISO, isValid } from "date-fns";
+import { parseISO, isValid, format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const steps = [
   { id: 'service', name: 'Service' },
@@ -66,10 +67,8 @@ export default function BookAppointmentPage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
     if (dateParam) {
       const parsedDate = parseISO(dateParam);
       if (isValid(parsedDate)) {
@@ -150,22 +149,37 @@ export default function BookAppointmentPage() {
                     </div>
                 )}
                 {currentStep === 2 && (
-                    <div className="space-y-4 animate-in fade-in-50 duration-500">
+                    <div className="space-y-4 animate-in fade-in-50 duration-500 max-w-sm mx-auto w-full">
                         <Label className="text-lg font-medium text-center block">Select a date and time</Label>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-                           <div className="flex justify-center">
-                            {isClient && (
-                                <Calendar
-                                    mode="single"
-                                    selected={date}
-                                    onSelect={setDate}
-                                    disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                    className="rounded-md border"
-                                />
-                            )}
-                           </div>
-                            <div className="space-y-4">
-                                <Label className="font-medium">Available Slots</Label>
+                        <div className="space-y-4">
+                            <div>
+                                <Label>Date</Label>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            variant={"outline"}
+                                            className={cn(
+                                                "w-full justify-start text-left font-normal h-12 text-base",
+                                                !date && "text-muted-foreground"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4" />
+                                            {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0">
+                                        <Calendar
+                                            mode="single"
+                                            selected={date}
+                                            onSelect={setDate}
+                                            disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+                            <div className="space-y-2">
+                                <Label>Available Slots</Label>
                                 <Select required>
                                     <SelectTrigger className="h-12 text-base">
                                     <SelectValue placeholder="Select a time slot" />
@@ -212,7 +226,3 @@ export default function BookAppointmentPage() {
     </div>
   );
 }
-
-    
-
-    
