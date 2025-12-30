@@ -144,7 +144,7 @@ export default function Home() {
                     <CardContent className="flex-grow space-y-2">
                         <div className="flex items-center text-sm text-muted-foreground">
                             <Calendar className="mr-2 h-4 w-4" />
-                            <span>{doctor.experience} experience</span>
+                            <span>{doctor.experience}</span>
                         </div>
                         <div className="flex items-center text-sm text-muted-foreground">
                             <Clock className="mr-2 h-4 w-4" />
