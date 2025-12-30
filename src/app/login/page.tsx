@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Mail, Lock } from "lucide-react";
+import { Mail, Lock, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const loginImage = PlaceHolderImages.find(p => p.id === 'hero-image');
@@ -23,6 +23,14 @@ export default function LoginPage() {
         />
       )}
       <div className="absolute inset-0 bg-black/60" />
+
+      <Button asChild variant="ghost" className="absolute top-4 left-4 z-20 text-white hover:bg-white/10 hover:text-white">
+        <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+        </Link>
+      </Button>
+
       <div className="relative z-10 flex items-center justify-center h-full">
         <div className="w-full max-w-md p-8 space-y-8 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl">
           <div className="grid gap-2 text-center text-white">

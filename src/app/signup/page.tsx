@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Mail, Lock, User } from "lucide-react";
+import { Mail, Lock, User, ArrowLeft } from "lucide-react";
 
 
 export default function SignupPage() {
@@ -24,6 +24,12 @@ export default function SignupPage() {
         />
       )}
       <div className="absolute inset-0 bg-black/60" />
+      <Button asChild variant="ghost" className="absolute top-4 left-4 z-20 text-white hover:bg-white/10 hover:text-white">
+        <Link href="/">
+            <ArrowLeft className="mr-2 h-4 w-4" />
+            Back to Home
+        </Link>
+      </Button>
       <div className="relative z-10 flex items-center justify-center h-full py-12">
         <div className="w-full max-w-md p-8 space-y-6 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl">
           <div className="grid gap-2 text-center text-white">
