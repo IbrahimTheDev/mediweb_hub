@@ -26,7 +26,7 @@ const appointments = [
   { time: "10:00 AM", patient: "Sarah Lee", reason: "New Patient Consultation", status: "Confirmed" },
   { time: "11:30 AM", patient: "Michael Johnson", reason: "Annual Check-up", status: "Arrived" },
   { time: "01:00 PM", patient: "Jessica Brown", reason: "Follow-up", status: "Pending" },
-  { time: "02:30 PM", patient: "David Wilson", reason: "Pre-op Assessment", status: "Confirmed" },
+  { time: "02:30 PM", patient: "David William", reason: "Pre-op Assessment", status: "Confirmed" },
 ];
 
 const patients = [
@@ -34,7 +34,7 @@ const patients = [
     { id: "P002", name: "Sarah Lee", lastVisit: "2024-07-22", diagnosis: "Migraine" },
     { id: "P003", name: "Michael Johnson", lastVisit: "2024-06-15", diagnosis: "Type 2 Diabetes" },
     { id: "P004", name: "Jessica Brown", lastVisit: "2024-08-10", diagnosis: "Asthma" },
-    { id: "P005", name: "David Wilson", lastVisit: "2024-05-28", diagnosis: "Scheduled for surgery" },
+    { id: "P005", name: "David William", lastVisit: "2024-05-28", diagnosis: "Scheduled for surgery" },
 ];
 
 

@@ -11,7 +11,7 @@ const doctors = [
   { name: "Dr. Emily Carter", specialty: "Cardiologist", imageId: "doctor-1", experience: "12+ years", availability: "Mon - Fri, 9am - 5pm" },
   { name: "Dr. Ben Adams", specialty: "Neurologist", imageId: "doctor-2", experience: "15+ years", availability: "Tue - Sat, 10am - 6pm" },
   { name: "Dr. Olivia Chen", specialty: "Pediatrician", imageId: "doctor-3", experience: "8+ years", availability: "Mon, Wed, Fri, 8am - 4pm" },
-  { name: "Dr. James Wilson", specialty: "Orthopedist", imageId: "doctor-5", experience: "9+ years", availability: "Mon - Thu, 8am - 5pm" },
+  { name: "Dr. James William", specialty: "Orthopedist", imageId: "doctor-5", experience: "9+ years", availability: "Mon - Thu, 8am - 5pm" },
 ];
 
 const services = [

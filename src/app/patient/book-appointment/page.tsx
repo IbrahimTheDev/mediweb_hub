@@ -67,8 +67,10 @@ export default function BookAppointmentPage() {
 
   const [currentStep, setCurrentStep] = useState(0);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     if (dateParam) {
       const parsedDate = parseISO(dateParam);
       if (isValid(parsedDate)) {
@@ -143,7 +145,7 @@ export default function BookAppointmentPage() {
                                 <SelectItem value="carter">Dr. Emily Carter</SelectItem>
                                 <SelectItem value="adams">Dr. Ben Adams</SelectItem>
                                 <SelectItem value="chen">Dr. Olivia Chen</SelectItem>
-                                <SelectItem value="wilson">Dr. James Wilson</SelectItem>
+                                <SelectItem value="william">Dr. James William</SelectItem>
                             </SelectContent>
                         </Select>
                     </div>
@@ -168,13 +170,13 @@ export default function BookAppointmentPage() {
                                         </Button>
                                     </PopoverTrigger>
                                     <PopoverContent className="w-auto p-0">
-                                        <Calendar
+                                       {isClient && <Calendar
                                             mode="single"
                                             selected={date}
                                             onSelect={setDate}
                                             disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
                                             initialFocus
-                                        />
+                                        />}
                                     </PopoverContent>
                                 </Popover>
                             </div>
