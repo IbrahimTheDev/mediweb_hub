@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import * as React from "react";
 import {
   SidebarProvider,
   Sidebar,
@@ -36,16 +37,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-// A bit of a hack to determine the user type based on referrer or some other state management
-// For this example, we'll assume a simple check.
-// In a real app, this would be driven by auth state.
-let userType: 'patient' | 'doctor' = 'patient';
-
-if (typeof window !== 'undefined' && document.referrer.includes('/doctor')) {
-    userType = 'doctor';
-}
-
-
 const patientNavItems = [
   { href: "/patient/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/patient/appointments", icon: CalendarPlus, label: "Appointments" },
@@ -66,6 +57,14 @@ export default function ProfileLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [userType, setUserType] = React.useState<'patient' | 'doctor'>('patient');
+
+  React.useEffect(() => {
+    if (document.referrer.includes('/doctor')) {
+      setUserType('doctor');
+    }
+  }, []);
+
   
   const navItems = userType === 'patient' ? patientNavItems : doctorNavItems;
   const dashboardUrl = userType === 'patient' ? '/patient/dashboard' : '/doctor/dashboard';
