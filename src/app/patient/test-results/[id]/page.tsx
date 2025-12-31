@@ -36,6 +36,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const resultDetails = {
     id: "res-001",
@@ -69,6 +71,8 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
   // In a real app, you would fetch result details using params.id
   const { testName, date, doctor, comments, values } = resultDetails;
   const { toast } = useToast();
+  const reportRef = React.useRef<HTMLDivElement>(null);
+
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,84 +83,124 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
   };
 
   const handleDownload = () => {
+    const input = reportRef.current;
+    if (!input) return;
+
     toast({
-        title: "Downloading PDF",
-        description: "Your test results PDF is downloading.",
+        title: "Generating PDF...",
+        description: "Your test results PDF is being created.",
+    });
+
+    html2canvas(input, { scale: 2 }).then((canvas) => {
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF('p', 'px', 'a4');
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = pdf.internal.pageSize.getHeight();
+        const canvasWidth = canvas.width;
+        const canvasHeight = canvas.height;
+        const ratio = canvasWidth / canvasHeight;
+        
+        const width = pdfWidth;
+        const height = width / ratio;
+
+        let finalHeight = height;
+        if (height > pdfHeight) {
+            finalHeight = pdfHeight;
+        }
+
+        pdf.addImage(imgData, 'PNG', 0, 0, width, finalHeight);
+        pdf.save(`test-result-${resultDetails.id}.pdf`);
     });
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline text-3xl">{testName}</CardTitle>
-                <CardDescription>
-                    Result from {date} - Ordered by {doctor}
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Component</TableHead>
-                            <TableHead>Value</TableHead>
-                            <TableHead>Standard Range</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {values.map((v) => (
-                            <TableRow key={v.component}>
-                                <TableCell className="font-medium">{v.component}</TableCell>
-                                <TableCell>{v.value} {v.unit}</TableCell>
-                                <TableCell>{v.range} {v.unit}</TableCell>
+        <div ref={reportRef} className="bg-card p-2">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="font-headline text-3xl">{testName}</CardTitle>
+                    <CardDescription>
+                        Result from {date} - Ordered by {doctor}
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Component</TableHead>
+                                <TableHead>Value</TableHead>
+                                <TableHead>Standard Range</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-                 <Separator className="my-6" />
-                 <div>
-                    <h3 className="font-semibold mb-2">Doctor's Comments</h3>
-                    <p className="text-sm text-muted-foreground">{comments}</p>
-                 </div>
-            </CardContent>
-            <CardFooter className="flex justify-end gap-2">
-                 <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="outline">
-                            <MessageSquare className="mr-2 h-4 w-4"/>
-                            Message Doctor
-                        </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                        <form onSubmit={handleSendMessage}>
-                            <DialogHeader>
-                                <DialogTitle>Message Dr. {doctor.split(' ').pop()}</DialogTitle>
-                                <DialogDescription>
-                                    Ask a question about your {testName} results. Your message will be sent securely.
-                                </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="grid gap-2">
-                                    <Label htmlFor="message">Your Message</Label>
-                                    <Textarea id="message" placeholder="Type your message here..." className="min-h-[120px]" required/>
+                        </TableHeader>
+                        <TableBody>
+                            {values.map((v) => (
+                                <TableRow key={v.component}>
+                                    <TableCell className="font-medium">{v.component}</TableCell>
+                                    <TableCell>{v.value} {v.unit}</TableCell>
+                                    <TableCell>{v.range} {v.unit}</TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    <Separator className="my-6" />
+                    <div>
+                        <h3 className="font-semibold mb-2">Doctor's Comments</h3>
+                        <p className="text-sm text-muted-foreground">{comments}</p>
+                    </div>
+                </CardContent>
+                <CardFooter>
+                    {/* Footer content can be excluded from PDF if needed */}
+                </CardFooter>
+            </Card>
+        </div>
+        
+        <Card>
+            <CardHeader className="flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="font-headline text-3xl">Actions</CardTitle>
+                    <CardDescription>
+                        Message your doctor or download your results.
+                    </CardDescription>
+                </div>
+                 <div className="flex justify-end gap-2">
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline">
+                                <MessageSquare className="mr-2 h-4 w-4"/>
+                                Message Doctor
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <form onSubmit={handleSendMessage}>
+                                <DialogHeader>
+                                    <DialogTitle>Message Dr. {doctor.split(' ').pop()}</DialogTitle>
+                                    <DialogDescription>
+                                        Ask a question about your {testName} results. Your message will be sent securely.
+                                    </DialogDescription>
+                                </DialogHeader>
+                                <div className="grid gap-4 py-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="message">Your Message</Label>
+                                        <Textarea id="message" placeholder="Type your message here..." className="min-h-[120px]" required/>
+                                    </div>
                                 </div>
-                            </div>
-                            <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button type="button" variant="outline">Cancel</Button>
-                                </DialogClose>
-                                <DialogClose asChild>
-                                    <Button type="submit">Send Message</Button>
-                                </DialogClose>
-                            </DialogFooter>
-                        </form>
-                    </DialogContent>
-                </Dialog>
-                <Button onClick={handleDownload}>
-                    <Download className="mr-2 h-4 w-4"/>
-                    Download PDF
-                </Button>
-            </CardFooter>
+                                <DialogFooter>
+                                    <DialogClose asChild>
+                                        <Button type="button" variant="outline">Cancel</Button>
+                                    </DialogClose>
+                                    <DialogClose asChild>
+                                        <Button type="submit">Send Message</Button>
+                                    </DialogClose>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                    <Button onClick={handleDownload}>
+                        <Download className="mr-2 h-4 w-4"/>
+                        Download PDF
+                    </Button>
+                </div>
+            </CardHeader>
         </Card>
         
         <Card>
