@@ -60,6 +60,14 @@ export default function ProfilePage() {
             });
             return;
         }
+        if (newPassword.length < 8 || newPassword.length > 16) {
+            toast({
+                variant: "destructive",
+                title: "Invalid Password Length",
+                description: "Password must be between 8 and 16 characters.",
+            });
+            return;
+        }
         // In a real app, you'd send all three passwords to the backend for verification and update.
         // For now, we are just showing a success message.
         toast({
