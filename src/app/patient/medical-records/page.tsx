@@ -18,6 +18,10 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
+import jsPDF from "jspdf";
+import { useToast } from "@/hooks/use-toast";
+import { Logo } from "@/components/logo";
+
 
 const records = [
     { id: "rec-001", date: "2024-08-15", record: "Consultation Note - Dr. Carter", type: "Doctor's Note" },
@@ -28,9 +32,49 @@ const records = [
 ];
 
 export default function MedicalRecordsPage() {
+  const { toast } = useToast();
+
   const downloadFile = (record: any) => {
-    // This is a mock download. In a real app, this would trigger a secure API call.
-    alert(`Downloading ${record.record}...`);
+    toast({
+        title: "Generating PDF...",
+        description: "Your medical record PDF is being created.",
+    });
+
+    const pdf = new jsPDF();
+
+    // Simple header
+    pdf.setFontSize(20);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("MediWeb Hub", 20, 20);
+
+    pdf.setFontSize(10);
+    pdf.setFont("helvetica", "normal");
+    pdf.text("123 Health St, Wellness City, 45678", 20, 28);
+    pdf.text("contact@mediwebhub.com | (123) 456-7890", 20, 34);
+
+    pdf.setLineWidth(0.5);
+    pdf.line(20, 40, 190, 40);
+
+    // Record details
+    pdf.setFontSize(16);
+    pdf.setFont("helvetica", "bold");
+    pdf.text("Medical Record", 20, 55);
+
+    pdf.setFontSize(12);
+    pdf.setFont("helvetica", "normal");
+    pdf.text(`Record: ${record.record}`, 20, 65);
+    pdf.text(`Date: ${record.date}`, 20, 72);
+    pdf.text(`Type: ${record.type}`, 20, 79);
+    pdf.text(`Record ID: ${record.id}`, 20, 86);
+    
+    // Simple footer
+    pdf.line(20, 270, 190, 270);
+    pdf.setFontSize(8);
+    pdf.text("*** End of Report ***", pdf.internal.pageSize.width / 2, 275, { align: 'center'});
+    pdf.text("This report is confidential and intended for the recipient only.", pdf.internal.pageSize.width / 2, 280, { align: 'center'});
+
+
+    pdf.save(`medical-record-${record.id}.pdf`);
   };
 
   return (
