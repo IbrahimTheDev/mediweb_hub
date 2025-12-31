@@ -8,6 +8,7 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
+  CardFooter,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -15,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Search, UserPlus } from "lucide-react";
+import { ArrowLeft, Search, UserPlus, PlusCircle, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -32,6 +33,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Separator } from "@/components/ui/separator";
 
 const patients = [
     { id: "P001", name: "John Smith", dob: "1975-05-20" },
@@ -41,12 +43,25 @@ const patients = [
     { id: "P005", name: "David William", dob: "1965-03-10" },
 ];
 
+type MedicationEntry = {
+    id: number;
+    medication: string;
+    dosage: string;
+    frequency: string;
+    quantity: string;
+};
+
+
 export default function NewPrescriptionPage() {
     const { toast } = useToast();
     const router = useRouter();
     const [selectedPatient, setSelectedPatient] = React.useState<{id: string, name: string} | null>(null);
     const [searchTerm, setSearchTerm] = React.useState("");
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    
+    const [medications, setMedications] = React.useState<MedicationEntry[]>([
+        { id: Date.now(), medication: "", dosage: "", frequency: "", quantity: "" }
+    ]);
 
     const filteredPatients = patients.filter(p => p.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -54,6 +69,24 @@ export default function NewPrescriptionPage() {
         setSelectedPatient(patient);
         setIsDialogOpen(false);
     }
+    
+    const handleMedicationChange = (id: number, field: keyof Omit<MedicationEntry, 'id'>, value: string) => {
+        setMedications(meds => 
+            meds.map(med => med.id === id ? { ...med, [field]: value } : med)
+        );
+    };
+
+    const addMedication = () => {
+        setMedications(meds => [
+            ...meds, 
+            { id: Date.now(), medication: "", dosage: "", frequency: "", quantity: "" }
+        ]);
+    };
+
+    const removeMedication = (id: number) => {
+        setMedications(meds => meds.filter(med => med.id !== id));
+    };
+
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,6 +98,17 @@ export default function NewPrescriptionPage() {
             });
             return;
         }
+
+        const isAnyMedicationEmpty = medications.some(m => !m.medication || !m.dosage || !m.frequency || !m.quantity);
+        if (isAnyMedicationEmpty) {
+            toast({
+                variant: "destructive",
+                title: "Incomplete Medication Details",
+                description: "Please fill out all fields for each medication.",
+            });
+            return;
+        }
+        
         toast({
             title: "Prescription Sent",
             description: `The new prescription for ${selectedPatient.name} has been successfully created and sent.`,
@@ -90,9 +134,8 @@ export default function NewPrescriptionPage() {
             </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="grid md:grid-cols-2 gap-4">
-          <div className="space-y-2">
+      <CardContent className="space-y-6">
+        <div className="space-y-2">
             <Label htmlFor="patient-search">Patient</Label>
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
@@ -137,36 +180,70 @@ export default function NewPrescriptionPage() {
               </DialogContent>
             </Dialog>
             {selectedPatient && <p className="text-xs text-muted-foreground">Patient ID: {selectedPatient.id}</p>}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="medication">Medication</Label>
-            <Input id="medication" placeholder="e.g., Lisinopril" required />
-          </div>
         </div>
-        <div className="grid md:grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="dosage">Dosage</Label>
-            <Input id="dosage" placeholder="e.g., 10mg" required/>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="frequency">Frequency</Label>
-            <Input id="frequency" placeholder="e.g., Once daily" required/>
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="quantity">Quantity</Label>
-            <Input id="quantity" type="number" placeholder="e.g., 30" required/>
-          </div>
+
+        <Separator />
+        
+        <div className="space-y-4">
+            {medications.map((med, index) => (
+                <div key={med.id} className="space-y-4 p-4 border rounded-lg relative">
+                    <Label className="font-semibold">Medication #{index + 1}</Label>
+                    {medications.length > 1 && (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="absolute top-2 right-2 h-6 w-6"
+                            onClick={() => removeMedication(med.id)}
+                        >
+                            <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                    )}
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor={`medication-${med.id}`}>Medication</Label>
+                            <Input id={`medication-${med.id}`} placeholder="e.g., Lisinopril" required value={med.medication} onChange={(e) => handleMedicationChange(med.id, 'medication', e.target.value)} />
+                        </div>
+                         <div className="space-y-2">
+                            <Label htmlFor={`dosage-${med.id}`}>Dosage</Label>
+                            <Input id={`dosage-${med.id}`} placeholder="e.g., 10mg" required value={med.dosage} onChange={(e) => handleMedicationChange(med.id, 'dosage', e.target.value)} />
+                        </div>
+                    </div>
+                    <div className="grid md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label htmlFor={`frequency-${med.id}`}>Frequency</Label>
+                            <Input id={`frequency-${med.id}`} placeholder="e.g., Once daily" required value={med.frequency} onChange={(e) => handleMedicationChange(med.id, 'frequency', e.target.value)} />
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor={`quantity-${med.id}`}>Quantity</Label>
+                            <Input id={`quantity-${med.id}`} type="number" placeholder="e.g., 30" required value={med.quantity} onChange={(e) => handleMedicationChange(med.id, 'quantity', e.target.value)} />
+                        </div>
+                    </div>
+                </div>
+            ))}
         </div>
+        
+        <Button type="button" variant="outline" onClick={addMedication}>
+            <PlusCircle className="mr-2 h-4 w-4" /> Add More
+        </Button>
+        
+        <Separator />
+        
         <div className="space-y-2">
-          <Label htmlFor="notes">Additional Notes</Label>
+          <Label htmlFor="notes">Additional Notes / Pharmacist Instructions</Label>
           <Textarea
             id="notes"
             placeholder="e.g., Take with food. No refills."
           />
         </div>
-        <Button>Send Prescription</Button>
+
       </CardContent>
+      <CardFooter className="border-t pt-6 flex justify-end">
+        <Button size="lg" type="submit">Send Prescription</Button>
+      </CardFooter>
       </form>
     </Card>
   );
 }
+
+    
