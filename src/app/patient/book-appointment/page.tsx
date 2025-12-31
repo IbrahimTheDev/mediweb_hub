@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -7,14 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import { useState, useEffect } from "react";
-import { parseISO, isValid, format } from "date-fns";
+import { parseISO, isValid, format, getYear, getMonth, getDate, getDaysInMonth } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 const steps = [
   { id: 'service', name: 'Service' },
@@ -68,15 +67,37 @@ export default function BookAppointmentPage() {
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [isClient, setIsClient] = useState(false);
 
+  const [year, setYear] = useState<number | undefined>();
+  const [month, setMonth] = useState<number | undefined>();
+  const [day, setDay] = useState<number | undefined>();
+
+  const years = Array.from({ length: 5 }, (_, i) => getYear(new Date()) + i);
+  const months = Array.from({ length: 12 }, (_, i) => ({ value: i, label: format(new Date(2000, i), 'MMMM') }));
+  const daysInMonth = year && month !== undefined ? getDaysInMonth(new Date(year, month)) : 31;
+  const days = Array.from({ length: daysInMonth }, (_, i) => i + 1);
+
+
   useEffect(() => {
     setIsClient(true);
     if (dateParam) {
       const parsedDate = parseISO(dateParam);
       if (isValid(parsedDate)) {
         setDate(parsedDate);
+        setYear(getYear(parsedDate));
+        setMonth(getMonth(parsedDate));
+        setDay(getDate(parsedDate));
       }
     }
   }, [dateParam]);
+
+  useEffect(() => {
+    if (year !== undefined && month !== undefined && day !== undefined) {
+      const newDate = new Date(year, month, day);
+      if (isValid(newDate)) {
+        setDate(newDate);
+      }
+    }
+  }, [year, month, day]);
 
 
   const nextStep = () => {
@@ -153,31 +174,34 @@ export default function BookAppointmentPage() {
                     <div className="space-y-4 animate-in fade-in-50 duration-500 max-w-sm mx-auto w-full">
                         <Label className="text-lg font-medium text-center block">Select a date and time</Label>
                         <div className="space-y-4">
-                            <div>
-                                <Label>Date</Label>
-                                <Popover>
-                                    <PopoverTrigger asChild>
-                                        <Button
-                                            variant={"outline"}
-                                            className={cn(
-                                                "w-full justify-start text-left font-normal h-12 text-base",
-                                                !date && "text-muted-foreground"
-                                            )}
-                                        >
-                                            <CalendarIcon className="mr-2 h-4 w-4" />
-                                            {date ? format(date, "PPP") : <span>Pick a date</span>}
-                                        </Button>
-                                    </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0">
-                                       {isClient && <Calendar
-                                            mode="single"
-                                            selected={date}
-                                            onSelect={setDate}
-                                            disabled={(d) => d < new Date(new Date().setHours(0,0,0,0))}
-                                            initialFocus
-                                        />}
-                                    </PopoverContent>
-                                </Popover>
+                            <div className="grid grid-cols-3 gap-2">
+                                <div className="space-y-2">
+                                    <Label>Year</Label>
+                                    <Select value={year?.toString()} onValueChange={(v) => setYear(Number(v))}>
+                                        <SelectTrigger><SelectValue placeholder="Year" /></SelectTrigger>
+                                        <SelectContent>
+                                            {years.map(y => <SelectItem key={y} value={y.toString()}>{y}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Month</Label>
+                                     <Select value={month?.toString()} onValueChange={(v) => setMonth(Number(v))}>
+                                        <SelectTrigger><SelectValue placeholder="Month" /></SelectTrigger>
+                                        <SelectContent>
+                                            {months.map(m => <SelectItem key={m.value} value={m.value.toString()}>{m.label}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                                <div className="space-y-2">
+                                    <Label>Day</Label>
+                                     <Select value={day?.toString()} onValueChange={(v) => setDay(Number(v))}>
+                                        <SelectTrigger><SelectValue placeholder="Day" /></SelectTrigger>
+                                        <SelectContent>
+                                            {days.map(d => <SelectItem key={d} value={d.toString()}>{d}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
                             </div>
                             <div className="space-y-2">
                                 <Label>Available Slots</Label>

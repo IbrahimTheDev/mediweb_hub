@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -20,7 +21,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
-  FileText,
   CalendarPlus,
   FlaskConical,
   Download,
@@ -54,6 +54,8 @@ export default function PatientDashboardPage() {
   const handleRequestAppointment = () => {
     if (date) {
       router.push(`/patient/book-appointment?date=${format(date, 'yyyy-MM-dd')}`);
+    } else {
+       router.push('/patient/book-appointment');
     }
   };
 
@@ -142,25 +144,13 @@ export default function PatientDashboardPage() {
            <Card>
             <CardHeader>
               <CardTitle className="font-headline">Book an Appointment</CardTitle>
-              <CardDescription>Choose a date that works for you.</CardDescription>
+              <CardDescription>Ready to schedule your next visit?</CardDescription>
             </CardHeader>
             <CardContent className="flex justify-center">
-              {isClient ? (
-                <Calendar
-                  mode="single"
-                  selected={date}
-                  onSelect={setDate}
-                  className="rounded-md border"
-                  disabled={(d) => d < new Date(new Date().setHours(0, 0, 0, 0))}
-                />
-              ) : (
-                <div className="p-3">
-                  <div className="w-[280px] h-[337px] rounded-md border" />
-                </div>
-              )}
+               <p className="text-sm text-muted-foreground p-4 text-center">Click the button below to start the booking process.</p>
             </CardContent>
             <CardFooter>
-              <Button className="w-full" onClick={handleRequestAppointment} disabled={!date}>Request Appointment</Button>
+              <Button className="w-full" onClick={handleRequestAppointment}>Request Appointment</Button>
             </CardFooter>
           </Card>
         </div>
