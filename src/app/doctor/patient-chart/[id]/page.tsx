@@ -16,12 +16,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { FileText, Heart, Thermometer, Weight, PlusCircle, ArrowLeft } from "lucide-react";
+import { FileText, Heart, Thermometer, Weight, ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useToast } from "@/hooks/use-toast";
 
 
 const patientData = {
@@ -49,16 +46,6 @@ const pastConsultations = [
 
 export default function PatientChartPage({ params }: { params: { id: string } }) {
     const patient = patientData[params.id as keyof typeof patientData] || { name: "Unknown Patient", dob: "N/A", gender: "N/A" };
-    const { toast } = useToast();
-
-    const handleSaveNote = (e: React.FormEvent) => {
-        e.preventDefault();
-        toast({
-            title: "Note Saved",
-            description: "The progress note has been successfully added to the patient's chart.",
-        });
-        // In a real app, you would clear the textarea or update the consultations list.
-    };
   
   return (
     <div className="space-y-6">
@@ -145,22 +132,6 @@ export default function PatientChartPage({ params }: { params: { id: string } })
                 </CardContent>
             </Card>
         </div>
-
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2"><PlusCircle />Add Progress Note</CardTitle>
-                <CardDescription>Add a new note for today's visit.</CardDescription>
-            </CardHeader>
-            <form onSubmit={handleSaveNote}>
-                <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="progress-note">Consultation Notes</Label>
-                        <Textarea id="progress-note" placeholder="Enter notes here..." className="min-h-[150px]"/>
-                    </div>
-                    <Button type="submit">Save Note</Button>
-                </CardContent>
-            </form>
-        </Card>
     </div>
   );
 }
