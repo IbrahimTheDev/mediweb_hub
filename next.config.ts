@@ -30,6 +30,14 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  devIndicators: {
+    buildActivity: false,
+  },
+  // In Next.js 14.2 and higher, you can configure allowedDevOrigins to allow cross-origin requests in development.
+  allowedDevOrigins: [
+    'https://*.cloudworkstations.dev',
+    'https://*.firebase.studio',
+  ],
 };
 
 export default nextConfig;
