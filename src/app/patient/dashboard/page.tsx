@@ -29,6 +29,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useUserStore } from "@/store/user";
 
 
 const appointments = [
@@ -44,13 +45,14 @@ const testResults = [
 
 export default function PatientDashboardPage() {
   const router = useRouter();
+  const { user } = useUserStore();
 
   return (
      <div className="grid gap-8 lg:grid-cols-3">
         <div className="lg:col-span-2 space-y-8">
             <Card className="bg-gradient-to-br from-primary/20 to-transparent">
                 <CardHeader>
-                    <CardTitle className="font-headline text-3xl">Welcome back, Jane!</CardTitle>
+                    <CardTitle className="font-headline text-3xl">Welcome back, {user.name.split(' ')[0]}!</CardTitle>
                     <CardDescription>Here's a summary of your health dashboard. You have {appointments.length} upcoming appointments.</CardDescription>
                 </CardHeader>
             </Card>
