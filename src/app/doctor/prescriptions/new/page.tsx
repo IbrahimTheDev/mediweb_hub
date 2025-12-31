@@ -119,7 +119,6 @@ export default function NewPrescriptionPage() {
                         <TableHeader>
                             <TableRow>
                                 <TableHead>Name</TableHead>
-                                <TableHead>Date of Birth</TableHead>
                                 <TableHead className="text-right">Action</TableHead>
                             </TableRow>
                         </TableHeader>
@@ -127,7 +126,6 @@ export default function NewPrescriptionPage() {
                             {filteredPatients.map(patient => (
                                 <TableRow key={patient.id}>
                                     <TableCell>{patient.name}</TableCell>
-                                    <TableCell>{patient.dob}</TableCell>
                                     <TableCell className="text-right">
                                         <Button size="sm" onClick={() => handleSelectPatient(patient)}>Select</Button>
                                     </TableCell>
