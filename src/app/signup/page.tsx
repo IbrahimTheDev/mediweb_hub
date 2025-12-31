@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Logo } from "@/components/logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Mail, Lock, User, ArrowLeft } from "lucide-react";
+import { Mail, Lock, Phone, ArrowLeft } from "lucide-react";
 
 
 export default function SignupPage() {
@@ -44,12 +44,13 @@ export default function SignupPage() {
           
             <div className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="full-name" className="text-white/80">Full Name</Label>
+                <Label htmlFor="mobile-no" className="text-white/80">Mobile No.</Label>
                  <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
                     <Input 
-                        id="full-name" 
-                        placeholder="John Doe" 
+                        id="mobile-no" 
+                        type="tel"
+                        placeholder="+1 234 567 890" 
                         required
                         className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:ring-primary"
                     />

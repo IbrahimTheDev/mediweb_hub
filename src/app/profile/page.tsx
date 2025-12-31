@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User } from "lucide-react";
+import { Upload, User, Phone } from "lucide-react";
 
 export default function ProfilePage() {
     const { toast } = useToast();
@@ -94,8 +94,8 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex-1 grid grid-cols-2 gap-4">
                          <div className="space-y-2">
-                            <Label htmlFor="full-name">Full Name</Label>
-                            <Input id="full-name" defaultValue="Jane Doe" />
+                            <Label htmlFor="mobile-no">Mobile No.</Label>
+                            <Input id="mobile-no" type="tel" defaultValue="+1 234 567 890" />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="email">Email Address</Label>
