@@ -3,7 +3,6 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Card,
   CardContent,
@@ -25,9 +24,10 @@ import {
   FlaskConical,
   Download,
   CalendarDays,
+  ArrowRight,
+  User,
 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { format } from "date-fns";
 import { useRouter } from "next/navigation";
 
 
@@ -43,50 +43,27 @@ const testResults = [
 
 
 export default function PatientDashboardPage() {
-  const [date, setDate] = useState<Date | undefined>(undefined);
   const router = useRouter();
-  const [isClient, setIsClient] = useState(false);
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  const handleRequestAppointment = () => {
-    if (date) {
-      router.push(`/patient/book-appointment?date=${format(date, 'yyyy-MM-dd')}`);
-    } else {
-       router.push('/patient/book-appointment');
-    }
-  };
-
 
   return (
-    <div className="space-y-8">
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Link href="/patient/appointments" className="block">
-          <Card className="hover:bg-muted/50 transition-colors">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Upcoming Appointments
-              </CardTitle>
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{appointments.length}</div>
-              <p className="text-xs text-muted-foreground">
-                You have {appointments.length} appointments scheduled.
-              </p>
-            </CardContent>
-          </Card>
-        </Link>
-      </div>
-
-      <div className="grid gap-8 lg:grid-cols-5">
-        <div className="lg:col-span-3 space-y-8">
+     <div className="grid gap-8 lg:grid-cols-3">
+        <div className="lg:col-span-2 space-y-8">
+            <Card className="bg-gradient-to-br from-primary/20 to-transparent">
+                <CardHeader>
+                    <CardTitle className="font-headline text-3xl">Welcome back, Jane!</CardTitle>
+                    <CardDescription>Here's a summary of your health dashboard. You have {appointments.length} upcoming appointments.</CardDescription>
+                </CardHeader>
+            </Card>
+            
             <Card id="appointments" className="scroll-mt-20">
-              <CardHeader>
-                <CardTitle className="font-headline flex items-center gap-2"><CalendarPlus/>Upcoming Appointments</CardTitle>
-                <CardDescription>Review your upcoming visits. <Link href="/patient/appointments" className="text-primary hover:underline">View all</Link></CardDescription>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="font-headline flex items-center gap-2"><CalendarDays/>Upcoming Appointments</CardTitle>
+                    <CardDescription>Review your upcoming visits.</CardDescription>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                    <Link href="/patient/appointments">View all <ArrowRight className="ml-2 h-4 w-4"/></Link>
+                </Button>
               </CardHeader>
               <CardContent>
                 <Table>
@@ -110,51 +87,52 @@ export default function PatientDashboardPage() {
               </CardContent>
             </Card>
 
-            <div className="grid gap-8 md:grid-cols-2">
-                <Card id="results" className="scroll-mt-20">
-                  <CardHeader>
-                    <CardTitle className="font-headline flex items-center gap-2"><FlaskConical/>Test Results</CardTitle>
-                     <CardDescription>View your latest lab results. <Link href="/patient/test-results" className="text-primary hover:underline">View all</Link></CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableBody>
-                        {testResults.map((result) => (
-                          <TableRow key={result.id}>
-                            <TableCell>
-                              <div className="font-medium">{result.test}</div>
-                              <div className="text-sm text-muted-foreground">{result.date}</div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="outline" size="sm" asChild>
-                                <Link href={`/patient/test-results/${result.id}`}><Download className="h-3 w-3 mr-2"/>View</Link>
-                              </Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-
-            </div>
+            <Card id="results" className="scroll-mt-20">
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <div>
+                        <CardTitle className="font-headline flex items-center gap-2"><FlaskConical/>Recent Test Results</CardTitle>
+                        <CardDescription>View your latest lab results.</CardDescription>
+                    </div>
+                     <Button variant="ghost" size="sm" asChild>
+                        <Link href="/patient/test-results">View all <ArrowRight className="ml-2 h-4 w-4"/></Link>
+                    </Button>
+                </CardHeader>
+                <CardContent>
+                <Table>
+                    <TableBody>
+                    {testResults.map((result) => (
+                        <TableRow key={result.id}>
+                        <TableCell>
+                            <div className="font-medium">{result.test}</div>
+                            <div className="text-sm text-muted-foreground">{result.date}</div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                            <Button variant="outline" size="sm" asChild>
+                            <Link href={`/patient/test-results/${result.id}`}><Download className="h-3 w-3 mr-2"/>View</Link>
+                            </Button>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+                </CardContent>
+            </Card>
         </div>
 
-        <div className="lg:col-span-2">
-           <Card>
-            <CardHeader>
-              <CardTitle className="font-headline">Book an Appointment</CardTitle>
-              <CardDescription>Ready to schedule your next visit?</CardDescription>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-               <p className="text-sm text-muted-foreground p-4 text-center">Click the button below to start the booking process.</p>
-            </CardContent>
-            <CardFooter>
-              <Button className="w-full" onClick={handleRequestAppointment}>Request Appointment</Button>
-            </CardFooter>
-          </Card>
+        <div className="lg:col-span-1 space-y-8">
+           <Card className="sticky top-24">
+                <CardHeader>
+                    <CardTitle className="font-headline">Book an Appointment</CardTitle>
+                    <CardDescription>Ready to schedule your next visit? Click the button below to start.</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <Button className="w-full" onClick={() => router.push('/patient/book-appointment')}>
+                        <CalendarPlus className="mr-2"/>
+                        Request Appointment
+                    </Button>
+                </CardFooter>
+            </Card>
         </div>
       </div>
-    </div>
   );
 }
