@@ -1,5 +1,6 @@
 
 "use client";
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,7 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Table,
   TableBody,
@@ -19,9 +19,21 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
-import React from "react";
+import { Input } from "@/components/ui/input";
+import { Search } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-const allAppointments = [
+
+type Appointment = {
+  patientId: string;
+  date: string;
+  time: string;
+  patient: string;
+  reason: string;
+  status: string;
+};
+
+const allAppointments: Appointment[] = [
   // Upcoming
   { patientId: "P001", date: "2024-09-15", time: "09:00 AM", patient: "John Smith", reason: "Follow-up", status: "Confirmed" },
   { patientId: "P002", date: "2024-09-16", time: "10:00 AM", patient: "Sarah Lee", reason: "New Patient Consultation", status: "Confirmed" },
@@ -33,98 +45,118 @@ const allAppointments = [
   { patientId: "P001", date: "2024-08-01", time: "09:00 AM", patient: "John Smith", reason: "Initial Consultation", status: "Completed" },
 ];
 
+const AppointmentTable = ({ appointments, searchTerm }: { appointments: Appointment[], searchTerm: string }) => {
+    
+    const filteredAppointments = appointments.filter(appt =>
+        appt.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        appt.reason.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    
+    const getBadgeVariant = (status: string) => {
+        switch (status) {
+        case "Arrived": return "default";
+        case "Confirmed": return "secondary";
+        case "Pending": return "destructive";
+        case "Completed": return "outline";
+        default: return "outline";
+        }
+    };
+    
+    return (
+        <Table>
+            <TableHeader>
+                <TableRow>
+                <TableHead>Date</TableHead>
+                <TableHead>Time</TableHead>
+                <TableHead>Patient</TableHead>
+                <TableHead>Reason</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Action</TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {filteredAppointments.length > 0 ? (
+                filteredAppointments.map((appt) => (
+                    <TableRow key={`${appt.patientId}-${appt.date}-${appt.time}`}>
+                    <TableCell>{new Date(appt.date).toLocaleDateString()}</TableCell>
+                    <TableCell className="font-medium">{appt.time}</TableCell>
+                    <TableCell>{appt.patient}</TableCell>
+                    <TableCell>{appt.reason}</TableCell>
+                    <TableCell>
+                        <Badge variant={getBadgeVariant(appt.status)}>
+                        {appt.status}
+                        </Badge>
+                    </TableCell>
+                    <TableCell className="text-right">
+                        <Button variant="outline" size="sm" asChild>
+                        <Link href={`/doctor/patient-chart/${appt.patientId}`}>View Chart</Link>
+                        </Button>
+                    </TableCell>
+                    </TableRow>
+                ))
+                ) : (
+                <TableRow>
+                    <TableCell colSpan={6} className="text-center h-24">
+                    No appointments found.
+                    </TableCell>
+                </TableRow>
+                )}
+            </TableBody>
+        </Table>
+    )
+}
+
 
 export default function DoctorAppointmentsPage() {
-  const [date, setDate] = React.useState<Date | undefined>(new Date());
+    const [searchTerm, setSearchTerm] = React.useState("");
 
-  const getBadgeVariant = (status: string) => {
-    switch (status) {
-      case "Arrived":
-        return "default";
-      case "Confirmed":
-        return "secondary";
-      case "Pending":
-        return "destructive";
-      case "Completed":
-        return "outline";
-      default:
-        return "outline";
-    }
-  };
-
-  const filteredAppointments = date
-    ? allAppointments.filter(
-        (appt) => new Date(appt.date).toDateString() === date.toDateString()
-      )
-    : allAppointments;
+    // In a real app, you would compare with the actual current date.
+    // For this mock, we'll hardcode 'today' to match the data.
+    const today = new Date("2024-09-12");
+    
+    const upcomingAppointments = allAppointments.filter(appt => new Date(appt.date) > today);
+    const todaysAppointments = allAppointments.filter(appt => new Date(appt.date).toDateString() === today.toDateString());
+    const pastAppointments = allAppointments.filter(appt => new Date(appt.date) < today);
 
   return (
-    <div className="grid gap-8 md:grid-cols-3">
-      <div className="md:col-span-1">
-        <Card>
-            <CardHeader>
-                <CardTitle className="font-headline">Select a Date</CardTitle>
-            </CardHeader>
-            <CardContent className="flex justify-center">
-                <Calendar
-                    mode="single"
-                    selected={date}
-                    onSelect={setDate}
-                    className="rounded-md border"
-                />
-            </CardContent>
-        </Card>
-      </div>
-      <div className="md:col-span-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">Appointments</CardTitle>
-            <CardDescription>
-              {date ? `Appointments for ${date.toLocaleDateString()}` : "All Appointments"}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Time</TableHead>
-                  <TableHead>Patient</TableHead>
-                  <TableHead>Reason</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filteredAppointments.length > 0 ? (
-                  filteredAppointments.map((appt) => (
-                    <TableRow key={`${appt.patientId}-${appt.date}`}>
-                      <TableCell className="font-medium">{appt.time}</TableCell>
-                      <TableCell>{appt.patient}</TableCell>
-                      <TableCell>{appt.reason}</TableCell>
-                      <TableCell>
-                        <Badge variant={getBadgeVariant(appt.status)}>
-                          {appt.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm" asChild>
-                           <Link href={`/doctor/patient-chart/${appt.patientId}`}>View Chart</Link>
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center h-24">
-                      No appointments for this date.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <Card>
+        <CardHeader>
+             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div>
+                    <CardTitle className="font-headline">All Appointments</CardTitle>
+                    <CardDescription>
+                        View and manage all patient appointments.
+                    </CardDescription>
+                </div>
+                <div className="relative w-full md:w-auto">
+                    <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input 
+                        placeholder="Search appointments..." 
+                        className="pl-8" 
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+            </div>
+        </CardHeader>
+        <CardContent>
+            <Tabs defaultValue="upcoming">
+                <TabsList>
+                    <TabsTrigger value="upcoming">Upcoming</TabsTrigger>
+                    <TabsTrigger value="today">Today</TabsTrigger>
+                    <TabsTrigger value="past">Past</TabsTrigger>
+                </TabsList>
+                <TabsContent value="upcoming">
+                    <AppointmentTable appointments={upcomingAppointments} searchTerm={searchTerm} />
+                </TabsContent>
+                <TabsContent value="today">
+                    <AppointmentTable appointments={todaysAppointments} searchTerm={searchTerm} />
+                </TabsContent>
+                <TabsContent value="past">
+                    <AppointmentTable appointments={pastAppointments} searchTerm={searchTerm} />
+                </TabsContent>
+            </Tabs>
+        </CardContent>
+    </Card>
   );
 }
