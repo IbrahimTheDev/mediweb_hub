@@ -215,7 +215,7 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
                         <DialogContent>
                             <form onSubmit={handleSendMessage}>
                                 <DialogHeader>
-                                    <DialogTitle>Message Dr. {doctor.split(' ').pop()}</DialogTitle>
+                                    <DialogTitle>Message {doctor}</DialogTitle>
                                     <DialogDescription>
                                         Ask a question about your {testName} results. Your message will be sent securely.
                                     </DialogDescription>
