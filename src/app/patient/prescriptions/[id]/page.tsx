@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
   CardDescription,
+  CardContent,
 } from "@/components/ui/card";
 import { ArrowLeft, Download } from "lucide-react";
 import Link from "next/link";
