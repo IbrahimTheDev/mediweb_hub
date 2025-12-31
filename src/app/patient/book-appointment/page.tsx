@@ -1,4 +1,3 @@
-
 "use client";
 
 import * as React from "react";
@@ -138,7 +137,7 @@ export default function BookAppointmentPage() {
                         <Label className="text-lg font-medium text-center block">Choose your preferred doctor</Label>
                         <Select required>
                             <SelectTrigger className="h-12 text-base max-w-sm mx-auto">
-                                <SelectValue placeholder="Select a doctor (optional)" />
+                                <SelectValue placeholder="Select a doctor" />
                             </SelectTrigger>
                             <SelectContent>
                                 <SelectItem value="any">Any Available Doctor</SelectItem>
