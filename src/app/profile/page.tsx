@@ -16,14 +16,22 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, User, Phone } from "lucide-react";
+import { useUserStore } from "@/store/user";
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const { user, setUser, avatar, setAvatar } = useUserStore();
+    
+    const [name, setName] = React.useState(user.name);
+    const [email, setEmail] = React.useState(user.email);
+    const [mobile, setMobile] = React.useState(user.mobile);
+
     const fileInputRef = React.useRef<HTMLInputElement>(null);
-    const [avatar, setAvatar] = React.useState<string | null>(null);
+    
 
     const handleInfoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        setUser({ name, email, mobile });
         toast({
             title: "Profile Updated",
             description: "Your personal information has been successfully updated.",
@@ -92,14 +100,18 @@ export default function ProfilePage() {
                             <span className="sr-only">Upload picture</span>
                         </Button>
                     </div>
-                    <div className="flex-1 grid grid-cols-2 gap-4">
+                     <div className="flex-1 grid grid-cols-2 gap-4">
                          <div className="space-y-2">
-                            <Label htmlFor="mobile-no">Mobile No.</Label>
-                            <Input id="mobile-no" type="tel" defaultValue="+1 234 567 890" />
+                            <Label htmlFor="full-name">Full Name</Label>
+                            <Input id="full-name" defaultValue={name} onChange={(e) => setName(e.target.value)} />
                         </div>
                         <div className="space-y-2">
+                            <Label htmlFor="mobile-no">Mobile No.</Label>
+                            <Input id="mobile-no" type="tel" defaultValue={mobile} onChange={(e) => setMobile(e.target.value)} />
+                        </div>
+                         <div className="space-y-2 col-span-2">
                             <Label htmlFor="email">Email Address</Label>
-                            <Input id="email" type="email" defaultValue="jane.doe@example.com" />
+                            <Input id="email" type="email" defaultValue={email} onChange={(e) => setEmail(e.target.value)} />
                         </div>
                     </div>
                 </div>

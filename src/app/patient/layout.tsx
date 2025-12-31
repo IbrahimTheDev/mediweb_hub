@@ -3,6 +3,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import * as React from "react";
 import {
   SidebarProvider,
   Sidebar,
@@ -19,7 +20,6 @@ import { Logo } from "@/components/logo";
 import {
   LayoutDashboard,
   CalendarPlus,
-  FileText,
   FlaskConical,
   LogOut,
   User,
@@ -35,6 +35,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useUserStore } from "@/store/user";
 
 const navItems = [
   { href: "/patient/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -48,6 +49,7 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user, avatar } = useUserStore();
 
   const getIsActive = (href: string) => {
     if (href === "/patient/dashboard") {
@@ -107,7 +109,7 @@ export default function PatientLayout({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src="https://picsum.photos/seed/patient/100/100" data-ai-hint="person photo" alt="Patient" />
+                  <AvatarImage src={avatar || "https://picsum.photos/seed/patient/100/100"} data-ai-hint="person photo" alt="Patient" />
                   <AvatarFallback>
                     <User />
                   </AvatarFallback>
@@ -117,9 +119,9 @@ export default function PatientLayout({
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">Jane Doe</p>
+                  <p className="text-sm font-medium leading-none">{user.name}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    jane.doe@example.com
+                    {user.email}
                   </p>
                 </div>
               </DropdownMenuLabel>

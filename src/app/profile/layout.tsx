@@ -18,9 +18,6 @@ import {
 } from "@/components/ui/sidebar";
 import { Logo } from "@/components/logo";
 import {
-  LayoutDashboard,
-  CalendarPlus,
-  FlaskConical,
   LogOut,
   User,
   Settings,
@@ -36,50 +33,26 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-
-const patientNavItems = [
-  { href: "/patient/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/patient/appointments", icon: CalendarPlus, label: "Appointments" },
-  { href: "/patient/test-results", icon: FlaskConical, label: "Test Results" },
-];
-
-const doctorNavItems = [
-  { href: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/doctor/dashboard#appointments", icon: CalendarPlus, label: "Appointments" },
-  { href: "/doctor/dashboard#patients", icon: User, label: "Patients" },
-  { href: "/doctor/dashboard#prescriptions", icon: FlaskConical, label: "Prescriptions" },
-];
-
+import { useUserStore } from "@/store/user";
 
 export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const [userType, setUserType] = React.useState<'patient' | 'doctor'>('patient');
+  const { userType, setUserType, user, avatar } = useUserStore();
 
   React.useEffect(() => {
     if (document.referrer.includes('/doctor')) {
       setUserType('doctor');
+    } else {
+      setUserType('patient');
     }
-  }, []);
+  }, [setUserType]);
 
   
-  const navItems = userType === 'patient' ? patientNavItems : doctorNavItems;
   const dashboardUrl = userType === 'patient' ? '/patient/dashboard' : '/doctor/dashboard';
-  const avatarUrl = userType === 'patient' ? 'https://picsum.photos/seed/patient/100/100' : 'https://picsum.photos/seed/doctor-profile/100/100';
-  const userName = userType === 'patient' ? 'Jane Doe' : 'Dr. Ben Adams';
-  const userEmail = userType === 'patient' ? 'jane.doe@example.com' : 'b.adams@mediweb.com';
   const dashboardName = userType === 'patient' ? 'Patient' : 'Doctor';
-
-
-  const getIsActive = (href: string) => {
-    if (href.includes("dashboard")) {
-      return pathname.startsWith('/patient/dashboard') || pathname.startsWith('/doctor/dashboard');
-    }
-    return pathname.startsWith(href);
-  };
 
 
   return (
@@ -126,7 +99,7 @@ export default function ProfileLayout({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={avatarUrl} alt="User" />
+                  <AvatarImage src={avatar || "https://picsum.photos/seed/user/100/100"} alt="User" />
                   <AvatarFallback>
                     <User />
                   </AvatarFallback>
@@ -136,9 +109,9 @@ export default function ProfileLayout({
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{userName}</p>
+                  <p className="text-sm font-medium leading-none">{user.name}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {userEmail}
+                    {user.email}
                   </p>
                 </div>
               </DropdownMenuLabel>
