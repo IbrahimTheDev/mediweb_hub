@@ -62,8 +62,8 @@ export default function DoctorPrescriptionsPage() {
                 <TableCell>{presc.medication}</TableCell>
                 <TableCell>{presc.date}</TableCell>
                 <TableCell className="text-right">
-                  <Button variant="outline" size="sm">
-                    View Details
+                  <Button variant="outline" size="sm" asChild>
+                    <Link href={`/doctor/prescriptions/${presc.id}`}>View Details</Link>
                   </Button>
                 </TableCell>
               </TableRow>
