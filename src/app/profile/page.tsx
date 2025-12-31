@@ -1,6 +1,8 @@
 
 "use client";
 
+import * as React from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -12,12 +14,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, User } from "lucide-react";
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const [avatar, setAvatar] = React.useState<string | null>(null);
 
     const handleInfoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -35,6 +38,21 @@ export default function ProfilePage() {
         });
     }
 
+    const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatar(reader.result as string);
+                toast({
+                    title: "Picture Uploaded",
+                    description: "Your new profile picture is now set.",
+                });
+            };
+            reader.readAsDataURL(file);
+        }
+    }
+
 
   return (
     <div className="space-y-8 max-w-3xl mx-auto">
@@ -49,10 +67,27 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
                 <div className="flex items-center gap-4">
                     <div className="relative">
-                        <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center">
-                            <User className="w-12 h-12 text-muted-foreground" />
+                        <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden">
+                            {avatar ? (
+                                <Image src={avatar} alt="Profile picture" width={96} height={96} className="object-cover w-full h-full" />
+                            ) : (
+                                <User className="w-12 h-12 text-muted-foreground" />
+                            )}
                         </div>
-                        <Button size="icon" variant="outline" className="absolute bottom-0 right-0 rounded-full h-8 w-8">
+                        <Input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            onChange={handleAvatarChange}
+                            accept="image/*"
+                        />
+                        <Button 
+                            size="icon" 
+                            variant="outline" 
+                            type="button"
+                            className="absolute bottom-0 right-0 rounded-full h-8 w-8"
+                            onClick={() => fileInputRef.current?.click()}
+                        >
                             <Upload className="h-4 w-4"/>
                             <span className="sr-only">Upload picture</span>
                         </Button>
@@ -108,4 +143,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
