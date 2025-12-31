@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { FileText, Heart, Thermometer, Weight, PlusCircle, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useToast } from "@/hooks/use-toast";
 
 
 const patientData = {
@@ -48,6 +49,16 @@ const pastConsultations = [
 
 export default function PatientChartPage({ params }: { params: { id: string } }) {
     const patient = patientData[params.id as keyof typeof patientData] || { name: "Unknown Patient", dob: "N/A", gender: "N/A" };
+    const { toast } = useToast();
+
+    const handleSaveNote = (e: React.FormEvent) => {
+        e.preventDefault();
+        toast({
+            title: "Note Saved",
+            description: "The progress note has been successfully added to the patient's chart.",
+        });
+        // In a real app, you would clear the textarea or update the consultations list.
+    };
   
   return (
     <div className="space-y-6">
@@ -59,8 +70,8 @@ export default function PatientChartPage({ params }: { params: { id: string } })
                 </p>
             </div>
             <Button variant="outline" asChild>
-                <Link href="/doctor/patients">
-                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Patient List
+                <Link href="/doctor/dashboard">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
                 </Link>
             </Button>
         </div>
@@ -138,13 +149,15 @@ export default function PatientChartPage({ params }: { params: { id: string } })
                 <CardTitle className="font-headline flex items-center gap-2"><PlusCircle />Add Progress Note</CardTitle>
                 <CardDescription>Add a new note for today's visit.</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-4">
-                 <div className="space-y-2">
-                    <Label htmlFor="progress-note">Consultation Notes</Label>
-                    <Textarea id="progress-note" placeholder="Enter notes here..." className="min-h-[150px]"/>
-                 </div>
-                 <Button>Save Note</Button>
-            </CardContent>
+            <form onSubmit={handleSaveNote}>
+                <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="progress-note">Consultation Notes</Label>
+                        <Textarea id="progress-note" placeholder="Enter notes here..." className="min-h-[150px]"/>
+                    </div>
+                    <Button type="submit">Save Note</Button>
+                </CardContent>
+            </form>
         </Card>
     </div>
   );

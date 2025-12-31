@@ -110,9 +110,8 @@ const AppointmentTable = ({ appointments, searchTerm }: { appointments: Appointm
 export default function DoctorAppointmentsPage() {
     const [searchTerm, setSearchTerm] = React.useState("");
 
-    // In a real app, you would compare with the actual current date.
-    // For this mock, we'll hardcode 'today' to match the data.
-    const today = new Date("2024-09-12");
+    // In a real app, you would use a state management solution to get the current date
+    const [today, setToday] = React.useState(new Date("2024-09-12"));
     
     const upcomingAppointments = allAppointments.filter(appt => new Date(appt.date) > today);
     const todaysAppointments = allAppointments.filter(appt => new Date(appt.date).toDateString() === today.toDateString());
