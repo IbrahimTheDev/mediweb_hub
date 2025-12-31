@@ -16,7 +16,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Search, UserPlus, PlusCircle, Trash2 } from "lucide-react";
+import { ArrowLeft, Search, PlusCircle, Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +34,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
+import { usePrescriptionStore } from "@/store/prescriptions";
+import { useUserStore } from "@/store/user";
 
 const patients = [
     { id: "P001", name: "John Smith", dob: "1975-05-20" },
@@ -41,6 +43,7 @@ const patients = [
     { id: "P003", name: "Michael Johnson", dob: "1990-01-15" },
     { id: "P004", name: "Jessica Brown", dob: "1988-08-25" },
     { id: "P005", name: "David William", dob: "1965-03-10" },
+    { id: "P00123", name: "Jane Doe", dob: "1985-05-22"},
 ];
 
 type MedicationEntry = {
@@ -55,9 +58,13 @@ type MedicationEntry = {
 export default function NewPrescriptionPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const { addPrescription } = usePrescriptionStore();
+    const { user: doctorUser } = useUserStore();
+
     const [selectedPatient, setSelectedPatient] = React.useState<{id: string, name: string} | null>(null);
     const [searchTerm, setSearchTerm] = React.useState("");
     const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+    const [notes, setNotes] = React.useState("");
     
     const [medications, setMedications] = React.useState<MedicationEntry[]>([
         { id: Date.now(), medication: "", dosage: "", frequency: "", quantity: "" }
@@ -108,6 +115,14 @@ export default function NewPrescriptionPage() {
             });
             return;
         }
+
+        const newPrescription = {
+            patient: selectedPatient.name,
+            patientId: selectedPatient.id,
+            medications: medications.map(({ id, ...rest }) => rest),
+            notes,
+        };
+        addPrescription(newPrescription);
         
         toast({
             title: "Prescription Sent",
@@ -234,6 +249,8 @@ export default function NewPrescriptionPage() {
           <Textarea
             id="notes"
             placeholder="e.g., Take with food. No refills."
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
           />
         </div>
 
@@ -245,5 +262,3 @@ export default function NewPrescriptionPage() {
     </Card>
   );
 }
-
-    

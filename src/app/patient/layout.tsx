@@ -23,6 +23,7 @@ import {
   FlaskConical,
   LogOut,
   User,
+  ClipboardPlus,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -40,6 +41,7 @@ const navItems = [
   { href: "/patient/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/patient/appointments", icon: CalendarPlus, label: "Appointments" },
   { href: "/patient/test-results", icon: FlaskConical, label: "Test Results" },
+  { href: "/patient/prescriptions", icon: ClipboardPlus, label: "Prescriptions" },
 ];
 
 export default function PatientLayout({

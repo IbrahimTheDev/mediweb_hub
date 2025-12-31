@@ -28,21 +28,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { subDays, isAfter } from 'date-fns';
+import { usePrescriptionStore } from "@/store/prescriptions";
 
-const prescriptions = [
-    { id: "PRES-001", patient: "John Smith", medication: "Lisinopril", date: "2024-08-01" },
-    { id: "PRES-002", patient: "Sarah Lee", medication: "Sumatriptan", date: "2024-07-22" },
-    { id: "PRES-003", patient: "Michael Johnson", medication: "Metformin", date: "2024-06-15" },
-    { id: "PRES-004", patient: "Jessica Brown", medication: "Albuterol", date: "2024-08-10" },
-];
 
 export default function DoctorPrescriptionsPage() {
+    const { prescriptions } = usePrescriptionStore();
     const [searchTerm, setSearchTerm] = React.useState("");
     const [dateFilter, setDateFilter] = React.useState("all");
 
     const filteredPrescriptions = prescriptions.filter(presc => {
         const matchesSearch = presc.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                              presc.medication.toLowerCase().includes(searchTerm.toLowerCase());
+                              presc.medications.some(m => m.medication.toLowerCase().includes(searchTerm.toLowerCase()));
 
         if (dateFilter === 'all') {
             return matchesSearch;

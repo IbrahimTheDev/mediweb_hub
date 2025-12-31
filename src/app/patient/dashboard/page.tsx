@@ -25,11 +25,11 @@ import {
   Download,
   CalendarDays,
   ArrowRight,
-  User,
+  ClipboardPlus,
 } from "lucide-react";
-import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/user";
+import { usePrescriptionStore } from "@/store/prescriptions";
 
 
 const appointments = [
@@ -46,6 +46,10 @@ const testResults = [
 export default function PatientDashboardPage() {
   const router = useRouter();
   const { user } = useUserStore();
+  const { prescriptions } = usePrescriptionStore();
+
+  const patientPrescriptions = prescriptions.filter(p => p.patientId === user.id || p.patient === user.name).slice(0, 2);
+
 
   return (
      <div className="grid gap-8 lg:grid-cols-3">
@@ -88,6 +92,38 @@ export default function PatientDashboardPage() {
                 </Table>
               </CardContent>
             </Card>
+
+            <Card id="prescriptions" className="scroll-mt-20">
+              <CardHeader className="flex flex-row items-center justify-between">
+                <div>
+                    <CardTitle className="font-headline flex items-center gap-2"><ClipboardPlus/>Recent Prescriptions</CardTitle>
+                    <CardDescription>Review your recent prescriptions.</CardDescription>
+                </div>
+                <Button variant="ghost" size="sm" asChild>
+                    <Link href="/patient/prescriptions">View all <ArrowRight className="ml-2 h-4 w-4"/></Link>
+                </Button>
+              </CardHeader>
+              <CardContent>
+                <Table>
+                    <TableBody>
+                    {patientPrescriptions.map((presc) => (
+                        <TableRow key={presc.id}>
+                        <TableCell>
+                            <div className="font-medium">{presc.medications.map(m => m.medication).join(', ')}</div>
+                            <div className="text-sm text-muted-foreground">Issued on {presc.date} by {presc.doctor}</div>
+                        </TableCell>
+                        <TableCell className="text-right">
+                            <Button variant="outline" size="sm" asChild>
+                                <Link href={`/patient/prescriptions/${presc.id}`}>View</Link>
+                            </Button>
+                        </TableCell>
+                        </TableRow>
+                    ))}
+                    </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
+
 
             <Card id="results" className="scroll-mt-20">
                 <CardHeader className="flex flex-row items-center justify-between">

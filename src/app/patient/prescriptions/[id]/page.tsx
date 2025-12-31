@@ -17,11 +17,13 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Logo } from "@/components/logo";
 import { usePrescriptionStore } from "@/store/prescriptions";
+import { useUserStore } from "@/store/user";
 
-
-export default function PrescriptionDetailsPage({ params }: { params: { id: string } }) {
+export default function PatientPrescriptionDetailsPage({ params }: { params: { id: string } }) {
   const { prescriptions } = usePrescriptionStore();
-  const details = prescriptions.find(p => p.id === params.id);
+  const { user } = useUserStore();
+  const details = prescriptions.find(p => p.id === params.id && (p.patientId === user.id || p.patient === user.name));
+  
   const { toast } = useToast();
   const reportRef = React.useRef<HTMLDivElement>(null);
 
@@ -61,11 +63,11 @@ export default function PrescriptionDetailsPage({ params }: { params: { id: stri
         <Card>
             <CardHeader>
                 <CardTitle>Prescription Not Found</CardTitle>
-                <CardDescription>The requested prescription could not be found.</CardDescription>
+                <CardDescription>The requested prescription could not be found or does not belong to you.</CardDescription>
             </CardHeader>
             <CardContent>
                 <Button variant="outline" asChild>
-                    <Link href="/doctor/prescriptions">
+                    <Link href="/patient/prescriptions">
                         <ArrowLeft className="mr-2 h-4 w-4" /> Back to Prescriptions
                     </Link>
                 </Button>
@@ -81,11 +83,11 @@ export default function PrescriptionDetailsPage({ params }: { params: { id: stri
                 <div className="flex items-start justify-between">
                     <div>
                         <CardTitle className="font-headline">Prescription Details</CardTitle>
-                        <CardDescription>Review and manage the prescription. ID: {details.id}</CardDescription>
+                        <CardDescription>Review your prescription. ID: {details.id}</CardDescription>
                     </div>
                     <div className="flex gap-2">
                          <Button variant="outline" asChild>
-                            <Link href="/doctor/prescriptions">
+                            <Link href="/patient/prescriptions">
                                 <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
                             </Link>
                         </Button>
@@ -119,7 +121,7 @@ export default function PrescriptionDetailsPage({ params }: { params: { id: stri
             <section className="grid grid-cols-2 gap-4 my-6 text-sm">
                 <div>
                     <h3 className="font-bold mb-2">Patient</h3>
-                    <p><strong>Name:</strong> <Link href={`/doctor/patient-chart/${details.patientId}`} className="text-primary underline">{details.patient}</Link></p>
+                    <p><strong>Name:</strong> {details.patient}</p>
                     <p><strong>Patient ID:</strong> {details.patientId}</p>
                 </div>
                  <div className="text-right">
