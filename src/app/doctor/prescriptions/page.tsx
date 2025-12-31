@@ -109,7 +109,6 @@ export default function DoctorPrescriptionsPage() {
             <TableRow>
               <TableHead>Prescription ID</TableHead>
               <TableHead>Patient</TableHead>
-              <TableHead>Medication</TableHead>
               <TableHead>Date Issued</TableHead>
               <TableHead className="text-right">Action</TableHead>
             </TableRow>
@@ -120,7 +119,6 @@ export default function DoctorPrescriptionsPage() {
                 <TableRow key={presc.id}>
                     <TableCell className="font-medium">{presc.id}</TableCell>
                     <TableCell>{presc.patient}</TableCell>
-                    <TableCell>{presc.medication}</TableCell>
                     <TableCell>{presc.date}</TableCell>
                     <TableCell className="text-right">
                     <Button variant="outline" size="sm" asChild>
@@ -131,7 +129,7 @@ export default function DoctorPrescriptionsPage() {
                 ))
             ) : (
                 <TableRow>
-                    <TableCell colSpan={5} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                         No prescriptions found for the selected criteria.
                     </TableCell>
                 </TableRow>
