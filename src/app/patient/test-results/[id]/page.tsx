@@ -78,6 +78,13 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
     });
   };
 
+  const handleDownload = () => {
+    toast({
+        title: "Downloading PDF",
+        description: "Your test results PDF is downloading.",
+    });
+  };
+
   return (
     <div className="max-w-4xl mx-auto space-y-6">
         <Card>
@@ -145,7 +152,7 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
                         </form>
                     </DialogContent>
                 </Dialog>
-                <Button>
+                <Button onClick={handleDownload}>
                     <Download className="mr-2 h-4 w-4"/>
                     Download PDF
                 </Button>
