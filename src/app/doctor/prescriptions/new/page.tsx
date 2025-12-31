@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
 
 
 export default function NewPrescriptionPage() {
@@ -32,10 +34,19 @@ export default function NewPrescriptionPage() {
     <Card className="max-w-4xl mx-auto">
         <form onSubmit={handleSubmit}>
       <CardHeader>
-        <CardTitle className="font-headline">New Digital Prescription</CardTitle>
-        <CardDescription>
-          Create and send a new prescription to the pharmacy.
-        </CardDescription>
+        <div className="flex items-start justify-between">
+            <div>
+                <CardTitle className="font-headline">New Digital Prescription</CardTitle>
+                <CardDescription>
+                Create and send a new prescription to the pharmacy.
+                </CardDescription>
+            </div>
+            <Button variant="outline" asChild>
+                <Link href="/doctor/prescriptions">
+                    <ArrowLeft className="mr-2 h-4 w-4" /> Back to List
+                </Link>
+            </Button>
+        </div>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="grid md:grid-cols-2 gap-4">
