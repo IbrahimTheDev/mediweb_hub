@@ -1,3 +1,5 @@
+
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -6,8 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -17,34 +17,49 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Search } from "lucide-react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+
 
 const appointments = [
-  { time: "09:00 AM", patient: "John Smith", reason: "Follow-up", status: "Confirmed" },
-  { time: "10:00 AM", patient: "Sarah Lee", reason: "New Patient Consultation", status: "Confirmed" },
-  { time: "11:30 AM", patient: "Michael Johnson", reason: "Annual Check-up", status: "Arrived" },
-  { time: "01:00 PM", patient: "Jessica Brown", reason: "Follow-up", status: "Pending" },
-  { time: "02:30 PM", patient: "David William", reason: "Pre-op Assessment", status: "Confirmed" },
+  { patientId: "P001", time: "09:00 AM", patient: "John Smith", reason: "Follow-up", status: "Confirmed" },
+  { patientId: "P002", time: "10:00 AM", patient: "Sarah Lee", reason: "New Patient Consultation", status: "Confirmed" },
+  { patientId: "P003", time: "11:30 AM", patient: "Michael Johnson", reason: "Annual Check-up", status: "Arrived" },
+  { patientId: "P004", time: "01:00 PM", patient: "Jessica Brown", reason: "Follow-up", status: "Pending" },
+  { patientId: "P005", time: "02:30 PM", patient: "David William", reason: "Pre-op Assessment", status: "Confirmed" },
 ];
 
-const patients = [
+const recentPatients = [
     { id: "P001", name: "John Smith", lastVisit: "2024-08-01", diagnosis: "Hypertension" },
-    { id: "P002", name: "Sarah Lee", lastVisit: "2024-07-22", diagnosis: "Migraine" },
-    { id: "P003", name: "Michael Johnson", lastVisit: "2024-06-15", diagnosis: "Type 2 Diabetes" },
     { id: "P004", name: "Jessica Brown", lastVisit: "2024-08-10", diagnosis: "Asthma" },
-    { id: "P005", name: "David William", lastVisit: "2024-05-28", diagnosis: "Scheduled for surgery" },
+    { id: "P002", name: "Sarah Lee", lastVisit: "2024-07-22", diagnosis: "Migraine" },
 ];
 
 
 export default function DoctorDashboardPage() {
+  const router = useRouter();
+
+  const getBadgeVariant = (status: string) => {
+    switch (status) {
+      case "Arrived":
+        return "default"; // blue
+      case "Confirmed":
+        return "secondary"; // green/gray
+      case "Pending":
+        return "destructive"; // orange/red
+      default:
+        return "outline";
+    }
+  };
+
+
   return (
     <Tabs defaultValue="appointments" className="space-y-4">
       <TabsList>
-        <TabsTrigger value="appointments" id="appointments" className="scroll-mt-20">Today's Appointments</TabsTrigger>
-        <TabsTrigger value="patients" id="patients" className="scroll-mt-20">Patients</TabsTrigger>
-        <TabsTrigger value="prescriptions" id="prescriptions" className="scroll-mt-20">Digital Prescription</TabsTrigger>
+        <TabsTrigger value="appointments">Today's Appointments</TabsTrigger>
+        <TabsTrigger value="patients">Recent Patients</TabsTrigger>
+        <TabsTrigger value="prescriptions" onClick={() => router.push('/doctor/prescriptions/new')}>Digital Prescription</TabsTrigger>
       </TabsList>
 
       <TabsContent value="appointments">
@@ -73,12 +88,14 @@ export default function DoctorDashboardPage() {
                     <TableCell>{appt.patient}</TableCell>
                     <TableCell>{appt.reason}</TableCell>
                     <TableCell>
-                      <Badge variant={appt.status === "Arrived" ? "default" : "secondary"}>
+                      <Badge variant={getBadgeVariant(appt.status)}>
                         {appt.status}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">
-                        <Button variant="outline" size="sm">View Chart</Button>
+                        <Button variant="outline" size="sm" asChild>
+                          <Link href={`/doctor/patient-chart/${appt.patientId}`}>View Chart</Link>
+                        </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -91,35 +108,31 @@ export default function DoctorDashboardPage() {
       <TabsContent value="patients">
         <Card>
           <CardHeader>
-            <CardTitle className="font-headline">Patient History</CardTitle>
+            <CardTitle className="font-headline">Recent Patients</CardTitle>
             <CardDescription>
-              Search and manage your patient records.
+              A list of patients you have recently seen.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input placeholder="Search patients by name or ID..." className="pl-8" />
-            </div>
+          <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>Patient ID</TableHead>
                   <TableHead>Name</TableHead>
                   <TableHead>Last Visit</TableHead>
-                  <TableHead>Last Diagnosis</TableHead>
                    <TableHead className="text-right">Action</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {patients.map((patient) => (
+                {recentPatients.map((patient) => (
                   <TableRow key={patient.id}>
                     <TableCell className="font-medium">{patient.id}</TableCell>
                     <TableCell>{patient.name}</TableCell>
                     <TableCell>{patient.lastVisit}</TableCell>
-                    <TableCell>{patient.diagnosis}</TableCell>
                      <TableCell className="text-right">
-                        <Button variant="outline" size="sm">View Full History</Button>
+                        <Button variant="outline" size="sm" asChild>
+                           <Link href={`/doctor/patient-chart/${patient.id}`}>View Chart</Link>
+                        </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -130,45 +143,7 @@ export default function DoctorDashboardPage() {
       </TabsContent>
 
       <TabsContent value="prescriptions">
-        <Card>
-          <CardHeader>
-            <CardTitle className="font-headline">New Digital Prescription</CardTitle>
-            <CardDescription>
-              Create and send a new prescription to the pharmacy.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="patient-search">Patient Name or ID</Label>
-                    <Input id="patient-search" placeholder="Search for a patient..." />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="medication">Medication</Label>
-                    <Input id="medication" placeholder="e.g., Lisinopril" />
-                </div>
-            </div>
-            <div className="grid md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                    <Label htmlFor="dosage">Dosage</Label>
-                    <Input id="dosage" placeholder="e.g., 10mg" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="frequency">Frequency</Label>
-                    <Input id="frequency" placeholder="e.g., Once daily" />
-                </div>
-                <div className="space-y-2">
-                    <Label htmlFor="quantity">Quantity</Label>
-                    <Input id="quantity" type="number" placeholder="e.g., 30" />
-                </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Additional Notes</Label>
-              <Textarea id="notes" placeholder="e.g., Take with food. No refills." />
-            </div>
-            <Button>Send Prescription</Button>
-          </CardContent>
-        </Card>
+        {/* This content will not be shown as the tab trigger navigates away */}
       </TabsContent>
     </Tabs>
   );

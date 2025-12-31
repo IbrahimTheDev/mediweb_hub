@@ -23,7 +23,6 @@ import {
   FlaskConical,
   LogOut,
   User,
-  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -90,7 +89,7 @@ export default function PatientLayout({
            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Log Out">
-                  <Link href="/">
+                  <Link href="/login">
                     <LogOut />
                     <span>Log Out</span>
                   </Link>
@@ -128,13 +127,13 @@ export default function PatientLayout({
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/profile">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/">
+                <Link href="/login">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </Link>

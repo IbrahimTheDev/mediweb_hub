@@ -24,7 +24,6 @@ import {
   ClipboardPlus,
   LogOut,
   User,
-  Settings,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -40,9 +39,9 @@ import { useUserStore } from "@/store/user";
 
 const navItems = [
   { href: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
-  { href: "/doctor/dashboard#appointments", icon: CalendarDays, label: "Appointments" },
-  { href: "/doctor/dashboard#patients", icon: Users, label: "Patients" },
-  { href: "/doctor/dashboard#prescriptions", icon: ClipboardPlus, label: "Prescriptions" },
+  { href: "/doctor/appointments", icon: CalendarDays, label: "Appointments" },
+  { href: "/doctor/patients", icon: Users, label: "Patients" },
+  { href: "/doctor/prescriptions", icon: ClipboardPlus, label: "Prescriptions" },
 ];
 
 export default function DoctorLayout({
@@ -52,6 +51,13 @@ export default function DoctorLayout({
 }) {
   const pathname = usePathname();
   const { user, avatar } = useUserStore();
+
+  const getIsActive = (href: string) => {
+    if (href === "/doctor/dashboard") {
+      return pathname === href;
+    }
+    return pathname.startsWith(href);
+  };
 
   return (
     <SidebarProvider>
@@ -68,7 +74,7 @@ export default function DoctorLayout({
               <SidebarMenuItem key={item.label}>
                 <SidebarMenuButton
                   asChild
-                  isActive={pathname === item.href.split('#')[0]}
+                  isActive={getIsActive(item.href)}
                   tooltip={item.label}
                 >
                   <Link href={item.href}>
@@ -84,7 +90,7 @@ export default function DoctorLayout({
            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Log Out">
-                  <Link href="/">
+                  <Link href="/login">
                     <LogOut />
                     <span>Log Out</span>
                   </Link>
@@ -122,13 +128,13 @@ export default function DoctorLayout({
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/profile">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/">
+                <Link href="/login">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </Link>

@@ -20,7 +20,6 @@ import { Logo } from "@/components/logo";
 import {
   LogOut,
   User,
-  Settings,
   ArrowLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,6 +42,8 @@ export default function ProfileLayout({
   const { userType, setUserType, user, avatar } = useUserStore();
 
   React.useEffect(() => {
+    // A simple way to infer user type based on referrer.
+    // In a real app, this would be handled by auth state.
     if (document.referrer.includes('/doctor')) {
       setUserType('doctor');
     } else {
@@ -80,7 +81,7 @@ export default function ProfileLayout({
            <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild tooltip="Log Out">
-                  <Link href="/">
+                  <Link href="/login">
                     <LogOut />
                     <span>Log Out</span>
                   </Link>
@@ -118,13 +119,13 @@ export default function ProfileLayout({
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
                 <Link href="/profile">
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/">
+                <Link href="/login">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
                 </Link>
