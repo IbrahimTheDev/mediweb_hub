@@ -7,7 +7,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -19,23 +18,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Separator } from "@/components/ui/separator";
-import { Download, MessageSquare, TrendingUp, Phone, Mail, MapPin } from "lucide-react";
+import { Download, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-  DialogFooter,
-  DialogClose
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
@@ -79,15 +65,6 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
   const { testName, date, doctor, comments, values, patient } = resultDetails;
   const { toast } = useToast();
   const reportRef = React.useRef<HTMLDivElement>(null);
-
-
-  const handleSendMessage = (e: React.FormEvent) => {
-    e.preventDefault();
-    toast({
-        title: "Message Sent!",
-        description: "Your message has been sent to the doctor.",
-    });
-  };
 
   const handleDownload = () => {
     const input = reportRef.current;
@@ -201,42 +178,10 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
                 <div>
                     <CardTitle className="font-headline text-3xl">Actions</CardTitle>
                     <CardDescription>
-                        Message your doctor or download your results.
+                        Download your results.
                     </CardDescription>
                 </div>
                  <div className="flex justify-end gap-2">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="outline">
-                                <MessageSquare className="mr-2 h-4 w-4"/>
-                                Message Doctor
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <form onSubmit={handleSendMessage}>
-                                <DialogHeader>
-                                    <DialogTitle>Message {doctor}</DialogTitle>
-                                    <DialogDescription>
-                                        Ask a question about your {testName} results. Your message will be sent securely.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="message">Your Message</Label>
-                                        <Textarea id="message" placeholder="Type your message here..." className="min-h-[120px]" required/>
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <DialogClose asChild>
-                                        <Button type="button" variant="outline">Cancel</Button>
-                                    </DialogClose>
-                                    <DialogClose asChild>
-                                        <Button type="submit">Send Message</Button>
-                                    </DialogClose>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
                     <Button onClick={handleDownload}>
                         <Download className="mr-2 h-4 w-4"/>
                         Download PDF
