@@ -39,7 +39,6 @@ const navItems = [
   { href: "/patient/dashboard", icon: LayoutDashboard, label: "Dashboard" },
   { href: "/patient/appointments", icon: CalendarPlus, label: "Appointments" },
   { href: "/patient/test-results", icon: FlaskConical, label: "Test Results" },
-  { href: "/patient/medical-records", icon: FileText, label: "Medical Records" },
 ];
 
 export default function PatientLayout({

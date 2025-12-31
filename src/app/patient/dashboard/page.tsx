@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -42,11 +41,6 @@ const testResults = [
   { id: "res-002", date: "2024-07-11", test: "Complete Blood Count", status: "Results Available" },
 ];
 
-const medicalRecords = [
-    { id: "rec-001", date: "2024-08-15", record: "Consultation Note - Dr. Carter" },
-    { id: "rec-002", date: "2024-07-20", record: "Lab Results - Lipid Panel" },
-    { id: "rec-003", date: "2024-07-11", record: "Lab Results - CBC" },
-];
 
 export default function PatientDashboardPage() {
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -141,29 +135,6 @@ export default function PatientDashboardPage() {
                   </CardContent>
                 </Card>
 
-                <Card id="records" className="scroll-mt-20">
-                  <CardHeader>
-                    <CardTitle className="font-headline flex items-center gap-2"><FileText/>Medical Records</CardTitle>
-                    <CardDescription>Access your health history. <Link href="/patient/medical-records" className="text-primary hover:underline">View all</Link></CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableBody>
-                        {medicalRecords.map((record) => (
-                          <TableRow key={record.id}>
-                             <TableCell>
-                              <div className="font-medium">{record.record}</div>
-                              <div className="text-sm text-muted-foreground">{record.date}</div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="outline" size="sm" onClick={() => alert(`Downloading ${record.record}...`)}><Download className="h-3 w-3 mr-2"/>Download</Button>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
             </div>
         </div>
 
