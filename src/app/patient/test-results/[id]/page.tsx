@@ -1,5 +1,6 @@
 
 "use client"
+import * as React from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -22,6 +23,19 @@ import { Download, MessageSquare, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogClose
+} from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 
 const resultDetails = {
     id: "res-001",
@@ -54,6 +68,15 @@ const chartConfig = {
 export default function TestResultDetailsPage({ params }: { params: { id: string } }) {
   // In a real app, you would fetch result details using params.id
   const { testName, date, doctor, comments, values } = resultDetails;
+  const { toast } = useToast();
+
+  const handleSendMessage = (e: React.FormEvent) => {
+    e.preventDefault();
+    toast({
+        title: "Message Sent!",
+        description: "Your message has been sent to the doctor.",
+    });
+  };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -90,10 +113,38 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
                  </div>
             </CardContent>
             <CardFooter className="flex justify-end gap-2">
-                <Button variant="outline">
-                    <MessageSquare className="mr-2 h-4 w-4"/>
-                    Message Doctor
-                </Button>
+                 <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="outline">
+                            <MessageSquare className="mr-2 h-4 w-4"/>
+                            Message Doctor
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <form onSubmit={handleSendMessage}>
+                            <DialogHeader>
+                                <DialogTitle>Message Dr. {doctor.split(' ').pop()}</DialogTitle>
+                                <DialogDescription>
+                                    Ask a question about your {testName} results. Your message will be sent securely.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="message">Your Message</Label>
+                                    <Textarea id="message" placeholder="Type your message here..." className="min-h-[120px]" required/>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild>
+                                    <Button type="button" variant="outline">Cancel</Button>
+                                </DialogClose>
+                                <DialogClose asChild>
+                                    <Button type="submit">Send Message</Button>
+                                </DialogClose>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
                 <Button>
                     <Download className="mr-2 h-4 w-4"/>
                     Download PDF
