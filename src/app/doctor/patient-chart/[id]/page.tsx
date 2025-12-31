@@ -38,8 +38,8 @@ const vitals = [
 ];
 
 const labResults = [
-    { date: "2024-08-01", test: "Lipid Panel", result: "View Report" },
-    { date: "2024-02-05", test: "CBC", result: "View Report" },
+    { id: "res-001", date: "2024-08-01", test: "Lipid Panel", result: "View Report" },
+    { id: "res-002", date: "2024-02-05", test: "CBC", result: "View Report" },
 ];
 
 const pastConsultations = [
@@ -119,7 +119,9 @@ export default function PatientChartPage({ params }: { params: { id: string } })
                                         <p className="text-sm text-muted-foreground">{lab.date}</p>
                                     </TableCell>
                                     <TableCell className="text-right">
-                                        <Button variant="link" size="sm">{lab.result}</Button>
+                                        <Button variant="link" size="sm" asChild>
+                                            <Link href={`/doctor/test-result/${lab.id}`}>{lab.result}</Link>
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
