@@ -1,3 +1,4 @@
+
 "use client";
 
 import * as React from "react";
@@ -19,7 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Separator } from "@/components/ui/separator";
-import { Download, MessageSquare, TrendingUp } from "lucide-react";
+import { Download, MessageSquare, TrendingUp, Phone, Mail, MapPin } from "lucide-react";
 import Link from "next/link";
 import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
@@ -38,6 +39,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
+import { Logo } from "@/components/logo";
 
 const resultDetails = {
     id: "res-001",
@@ -50,7 +52,12 @@ const resultDetails = {
         { component: "Triglycerides", value: "160", unit: "mg/dL", range: "<150" },
         { component: "HDL Cholesterol", value: "45", unit: "mg/dL", range: ">40" },
         { component: "LDL Cholesterol", value: "135", unit: "mg/dL", range: "<100" },
-    ]
+    ],
+    patient: {
+      name: "Jane Doe",
+      dob: "1985-05-22",
+      id: "P00123"
+    }
 };
 
 const chartData = [
@@ -69,7 +76,7 @@ const chartConfig = {
 
 export default function TestResultDetailsPage({ params }: { params: { id: string } }) {
   // In a real app, you would fetch result details using params.id
-  const { testName, date, doctor, comments, values } = resultDetails;
+  const { testName, date, doctor, comments, values, patient } = resultDetails;
   const { toast } = useToast();
   const reportRef = React.useRef<HTMLDivElement>(null);
 
@@ -115,21 +122,47 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
-        <div ref={reportRef} className="bg-card p-2">
-            <Card>
-                <CardHeader>
-                    <CardTitle className="font-headline text-3xl">{testName}</CardTitle>
-                    <CardDescription>
-                        Result from {date} - Ordered by {doctor}
-                    </CardDescription>
+        <div ref={reportRef} className="bg-card p-8 text-black">
+            <header className="flex justify-between items-start pb-4 border-b-2 border-black">
+                <div className="flex items-center gap-4">
+                    <Logo/>
+                    <div>
+                        <h1 className="text-2xl font-bold font-headline">MediWeb Hub</h1>
+                        <div className="text-xs text-gray-600">
+                            <p>123 Health St, Wellness City, 45678</p>
+                            <p>contact@mediwebhub.com | (123) 456-7890</p>
+                        </div>
+                    </div>
+                </div>
+                <div className="text-right">
+                    <h2 className="text-3xl font-bold font-headline text-primary">Lab Report</h2>
+                    <p className="text-sm">Report ID: {resultDetails.id}</p>
+                </div>
+            </header>
+            <section className="grid grid-cols-2 gap-4 my-6 text-sm">
+                <div>
+                    <h3 className="font-bold mb-2">Patient Details</h3>
+                    <p><strong>Name:</strong> {patient.name}</p>
+                    <p><strong>Date of Birth:</strong> {patient.dob}</p>
+                    <p><strong>Patient ID:</strong> {patient.id}</p>
+                </div>
+                 <div className="text-right">
+                    <h3 className="font-bold mb-2">Report Details</h3>
+                    <p><strong>Report Date:</strong> {date}</p>
+                    <p><strong>Ordering Physician:</strong> {doctor}</p>
+                </div>
+            </section>
+            <Card className="shadow-none border-gray-300">
+                <CardHeader className="bg-gray-50 rounded-t-lg">
+                    <CardTitle className="font-headline text-xl">{testName}</CardTitle>
                 </CardHeader>
-                <CardContent>
+                <CardContent className="p-0">
                     <Table>
                         <TableHeader>
-                            <TableRow>
-                                <TableHead>Component</TableHead>
-                                <TableHead>Value</TableHead>
-                                <TableHead>Standard Range</TableHead>
+                            <TableRow className="bg-gray-100">
+                                <TableHead className="text-black font-semibold">Component</TableHead>
+                                <TableHead className="text-black font-semibold">Value</TableHead>
+                                <TableHead className="text-black font-semibold">Standard Range</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -142,16 +175,25 @@ export default function TestResultDetailsPage({ params }: { params: { id: string
                             ))}
                         </TableBody>
                     </Table>
-                    <Separator className="my-6" />
-                    <div>
-                        <h3 className="font-semibold mb-2">Doctor's Comments</h3>
-                        <p className="text-sm text-muted-foreground">{comments}</p>
-                    </div>
                 </CardContent>
-                <CardFooter>
-                    {/* Footer content can be excluded from PDF if needed */}
-                </CardFooter>
             </Card>
+            <section className="my-6">
+                <h3 className="font-bold text-sm mb-2">Doctor's Comments</h3>
+                <p className="text-sm text-gray-700 bg-gray-50 p-3 rounded-md border">{comments}</p>
+            </section>
+            <footer className="pt-8 mt-8 border-t-2 border-black text-sm">
+                <div className="flex justify-between items-end">
+                     <div>
+                        <p>Electronically signed by:</p>
+                        <p className="mt-8 border-t border-gray-400 pt-1 font-semibold">{doctor}</p>
+                        <p className="text-xs text-gray-600">MediWeb Hub Laboratories</p>
+                    </div>
+                    <div className="text-xs text-gray-500 text-right">
+                        <p>*** End of Report ***</p>
+                        <p>This report is confidential and intended for the recipient only.</p>
+                    </div>
+                </div>
+            </footer>
         </div>
         
         <Card>
