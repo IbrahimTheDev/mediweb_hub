@@ -28,7 +28,6 @@ export default function ProfilePage() {
     const [currentPassword, setCurrentPassword] = React.useState("");
     const [newPassword, setNewPassword] = React.useState("");
     const [confirmPassword, setConfirmPassword] = React.useState("");
-    const [isCurrentPasswordVerified, setIsCurrentPasswordVerified] = React.useState(false);
 
 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -36,7 +35,7 @@ export default function ProfilePage() {
 
     const handleInfoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setUser({ mobile, email });
+        setUser({ ...user, mobile, email });
         toast({
             title: "Profile Updated",
             description: "Your personal information has been successfully updated.",
@@ -45,14 +44,6 @@ export default function ProfilePage() {
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-         if (!isCurrentPasswordVerified) {
-            toast({
-                variant: "destructive",
-                title: "Verification Required",
-                description: "Please verify your current password first.",
-            });
-            return;
-        }
         if (newPassword !== confirmPassword) {
             toast({
                 variant: "destructive",
@@ -70,6 +61,7 @@ export default function ProfilePage() {
             return;
         }
         // In a real app, you'd send all three passwords to the backend for verification and update.
+        // For now, we are just showing a success message.
         toast({
             title: "Password Changed",
             description: "Your password has been successfully updated.",
@@ -77,24 +69,6 @@ export default function ProfilePage() {
         setCurrentPassword("");
         setNewPassword("");
         setConfirmPassword("");
-        setIsCurrentPasswordVerified(false);
-    }
-    
-    const handleVerifyCurrentPassword = () => {
-        // In a real app, you would verify this against a backend.
-        if (currentPassword === "password123") {
-            setIsCurrentPasswordVerified(true);
-            toast({
-                title: "Password Verified",
-                description: "You can now set a new password.",
-            });
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Verification Failed",
-                description: "The current password you entered is incorrect.",
-            });
-        }
     }
 
 
@@ -182,26 +156,21 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="current-password">Current Password</Label>
-                <div className="flex gap-2">
-                    <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} disabled={isCurrentPasswordVerified} />
-                    {!isCurrentPasswordVerified && (
-                         <Button type="button" variant="outline" onClick={handleVerifyCurrentPassword} disabled={!currentPassword}>Verify</Button>
-                    )}
-                </div>
+                <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="new-password">New Password</Label>
-                    <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} disabled={!isCurrentPasswordVerified} />
+                    <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirm New Password</Label>
-                    <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} disabled={!isCurrentPasswordVerified} />
+                    <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </div>
             </div>
             </CardContent>
             <CardFooter className="border-t pt-6 flex justify-end">
-                <Button type="submit" disabled={!isCurrentPasswordVerified}>Update Password</Button>
+                <Button type="submit">Update Password</Button>
             </CardFooter>
         </form>
       </Card>
