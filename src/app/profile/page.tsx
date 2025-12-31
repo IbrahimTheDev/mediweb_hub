@@ -22,16 +22,19 @@ export default function ProfilePage() {
     const { toast } = useToast();
     const { user, setUser, avatar, setAvatar } = useUserStore();
     
-    const [name, setName] = React.useState(user.name);
-    const [email, setEmail] = React.useState(user.email);
     const [mobile, setMobile] = React.useState(user.mobile);
+    const [email, setEmail] = React.useState(user.email);
+    
+    const [currentPassword, setCurrentPassword] = React.useState("");
+    const [newPassword, setNewPassword] = React.useState("");
+    const [confirmPassword, setConfirmPassword] = React.useState("");
 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     
 
     const handleInfoSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        setUser({ name, email, mobile });
+        setUser({ email, mobile });
         toast({
             title: "Profile Updated",
             description: "Your personal information has been successfully updated.",
@@ -40,10 +43,29 @@ export default function ProfilePage() {
 
     const handlePasswordSubmit = (e: React.FormEvent) => {
         e.preventDefault();
+        if (newPassword !== confirmPassword) {
+            toast({
+                variant: "destructive",
+                title: "Passwords do not match",
+                description: "Please ensure your new password and confirmation match.",
+            });
+            return;
+        }
+        if (!newPassword) {
+            toast({
+                variant: "destructive",
+                title: "Password cannot be empty",
+                description: "Please enter a new password.",
+            });
+            return;
+        }
         toast({
             title: "Password Changed",
             description: "Your password has been successfully updated.",
         });
+        setCurrentPassword("");
+        setNewPassword("");
+        setConfirmPassword("");
     }
 
     const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,16 +124,12 @@ export default function ProfilePage() {
                     </div>
                      <div className="flex-1 grid grid-cols-2 gap-4">
                          <div className="space-y-2">
-                            <Label htmlFor="full-name">Full Name</Label>
-                            <Input id="full-name" defaultValue={name} onChange={(e) => setName(e.target.value)} />
-                        </div>
-                        <div className="space-y-2">
                             <Label htmlFor="mobile-no">Mobile No.</Label>
-                            <Input id="mobile-no" type="tel" defaultValue={mobile} onChange={(e) => setMobile(e.target.value)} />
+                            <Input id="mobile-no" type="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} />
                         </div>
                          <div className="space-y-2 col-span-2">
                             <Label htmlFor="email">Email Address</Label>
-                            <Input id="email" type="email" defaultValue={email} onChange={(e) => setEmail(e.target.value)} />
+                            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                         </div>
                     </div>
                 </div>
@@ -134,16 +152,16 @@ export default function ProfilePage() {
             <CardContent className="space-y-4">
             <div className="space-y-2">
                 <Label htmlFor="current-password">Current Password</Label>
-                <Input id="current-password" type="password" />
+                <Input id="current-password" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                     <Label htmlFor="new-password">New Password</Label>
-                    <Input id="new-password" type="password" />
+                    <Input id="new-password" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
                 </div>
                 <div className="space-y-2">
                     <Label htmlFor="confirm-password">Confirm New Password</Label>
-                    <Input id="confirm-password" type="password" />
+                    <Input id="confirm-password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} />
                 </div>
             </div>
             </CardContent>
