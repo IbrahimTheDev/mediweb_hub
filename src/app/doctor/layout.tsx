@@ -2,7 +2,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import {
   SidebarProvider,
@@ -40,6 +40,8 @@ import { useUserStore } from "@/store/user";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNotificationStore } from "@/store/notifications";
 import { Badge } from "@/components/ui/badge";
+import { useDoctorStore } from "@/store/doctor";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const navItems = [
   { href: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -92,13 +94,48 @@ function NotificationsPopover() {
     )
 }
 
+function LoadingScreen() {
+    return (
+        <div className="flex items-center justify-center h-screen">
+            <div className="flex flex-col items-center gap-4">
+                <Logo />
+                <Skeleton className="h-4 w-48" />
+                <p className="text-sm text-muted-foreground">Verifying profile...</p>
+            </div>
+        </div>
+    )
+}
+
+
 export default function DoctorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
   const { user, avatar } = useUserStore();
+  const { doctors } = useDoctorStore();
+  
+  const [isVerified, setIsVerified] = React.useState(false);
+
+
+  React.useEffect(() => {
+    // This logic should be on the client to access the store
+    const isRegistered = doctors.some(doc => doc.name === user.name);
+
+    if (pathname === '/doctor/registration') {
+        setIsVerified(true);
+        return;
+    }
+    
+    if (!isRegistered) {
+        router.replace('/doctor/registration');
+    } else {
+        setIsVerified(true);
+    }
+  }, [pathname, router, doctors, user.name]);
+
 
   const getIsActive = (href: string) => {
     if (href === "/doctor/dashboard") {
@@ -106,6 +143,10 @@ export default function DoctorLayout({
     }
     return pathname.startsWith(href);
   };
+  
+  if (!isVerified) {
+    return <LoadingScreen />;
+  }
 
   return (
     <SidebarProvider>
