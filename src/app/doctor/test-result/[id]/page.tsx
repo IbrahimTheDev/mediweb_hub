@@ -215,42 +215,10 @@ export default function DoctorTestResultDetailsPage({ params }: { params: { id: 
                 <div>
                     <CardTitle className="font-headline text-xl">Actions</CardTitle>
                     <CardDescription>
-                        Message the patient or download the results.
+                        Download the results.
                     </CardDescription>
                 </div>
                  <div className="flex justify-end gap-2">
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="outline">
-                                <MessageSquare className="mr-2 h-4 w-4"/>
-                                Message Patient
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                            <form onSubmit={handleSendMessage}>
-                                <DialogHeader>
-                                    <DialogTitle>Message {patient.name}</DialogTitle>
-                                    <DialogDescription>
-                                        Send a message regarding the {testName} results.
-                                    </DialogDescription>
-                                </DialogHeader>
-                                <div className="grid gap-4 py-4">
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="message">Your Message</Label>
-                                        <Textarea id="message" placeholder="Type your message here..." className="min-h-[120px]" required/>
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <DialogClose asChild>
-                                        <Button type="button" variant="outline">Cancel</Button>
-                                    </DialogClose>
-                                    <DialogClose asChild>
-                                        <Button type="submit">Send Message</Button>
-                                    </DialogClose>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
                     <Button onClick={handleDownload}>
                         <Download className="mr-2 h-4 w-4"/>
                         Download PDF
@@ -286,4 +254,3 @@ export default function DoctorTestResultDetailsPage({ params }: { params: { id: 
     </div>
   );
 }
-
