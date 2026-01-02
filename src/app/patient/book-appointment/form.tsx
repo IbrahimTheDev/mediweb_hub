@@ -12,15 +12,40 @@ import { useState, useEffect } from "react";
 import { parseISO, isValid, format, getYear, getMonth, getDate, getDaysInMonth } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Calendar, Clock, Stethoscope, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Separator } from "@/components/ui/separator";
 
 const steps = [
   { id: 'service', name: 'Service' },
   { id: 'doctor', name: 'Doctor' },
   { id: 'datetime', name: 'Date & Time' },
-  { id: 'details', name: 'Details' },
+  { id: 'details', name: 'Confirm Details' },
 ];
+
+const services = [
+    { value: "cardiology", label: "Cardiology" },
+    { value: "neurology", label: "Neurology" },
+    { value: "pediatrics", label: "Pediatrics" },
+    { value: "orthopedics", label: "Orthopedics" },
+    { value: "primary-care", label: "Primary Care" },
+];
+
+const doctors = [
+    { value: "any", label: "Any Available Doctor" },
+    { value: "carter", label: "Dr. Emily Carter" },
+    { value: "adams", label: "Dr. Ben Adams" },
+    { value: "chen", label: "Dr. Olivia Chen" },
+    { value: "william", label: "Dr. James William" },
+];
+
+const timeSlots = [
+    { value: "1000", label: "10:00 AM" },
+    { value: "1100", label: "11:00 AM" },
+    { value: "1400", label: "02:00 PM" },
+    { value: "1500", label: "03:00 PM" },
+];
+
 
 function Stepper({ currentStep, steps }: { currentStep: number; steps: {id: string; name: string}[] }) {
     return (
@@ -38,7 +63,7 @@ function Stepper({ currentStep, steps }: { currentStep: number; steps: {id: stri
                             {currentStep > index ? <Check className="w-5 h-5" /> : index + 1}
                         </div>
                         <p className={cn(
-                            "text-xs mt-2",
+                            "text-xs mt-2 w-20",
                             currentStep >= index ? "font-medium text-foreground" : "text-muted-foreground"
                         )}>
                             {step.name}
@@ -85,6 +110,7 @@ export default function BookAppointmentForm() {
 
   useEffect(() => {
     setIsClient(true);
+    const today = new Date();
     if (dateParam) {
       const parsedDate = parseISO(dateParam);
       if (isValid(parsedDate)) {
@@ -92,8 +118,14 @@ export default function BookAppointmentForm() {
         setYear(getYear(parsedDate));
         setMonth(getMonth(parsedDate));
         setDay(getDate(parsedDate));
+        return;
       }
     }
+    // Set default date to today if no valid date param
+    setDate(today);
+    setYear(getYear(today));
+    setMonth(getMonth(today));
+    setDay(getDate(today));
   }, [dateParam]);
 
   useEffect(() => {
@@ -135,7 +167,6 @@ export default function BookAppointmentForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (currentStep < steps.length - 1) {
-        // This case should ideally not happen if button is shown correctly
         return;
     }
     toast({
@@ -144,6 +175,10 @@ export default function BookAppointmentForm() {
     });
     router.push('/patient/dashboard');
   };
+
+  const getLabel = (arr: {value: string, label: string}[], value: string) => {
+    return arr.find(item => item.value === value)?.label || "Not selected";
+  }
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -167,11 +202,7 @@ export default function BookAppointmentForm() {
                                 <SelectValue placeholder="Select a department or specialty" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="cardiology">Cardiology</SelectItem>
-                                <SelectItem value="neurology">Neurology</SelectItem>
-                                <SelectItem value="pediatrics">Pediatrics</SelectItem>
-                                <SelectItem value="orthopedics">Orthopedics</SelectItem>
-                                <SelectItem value="primary-care">Primary Care</SelectItem>
+                                {services.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
@@ -184,11 +215,7 @@ export default function BookAppointmentForm() {
                                 <SelectValue placeholder="Select a doctor" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="any">Any Available Doctor</SelectItem>
-                                <SelectItem value="carter">Dr. Emily Carter</SelectItem>
-                                <SelectItem value="adams">Dr. Ben Adams</SelectItem>
-                                <SelectItem value="chen">Dr. Olivia Chen</SelectItem>
-                                <SelectItem value="william">Dr. James William</SelectItem>
+                                {doctors.map(d => <SelectItem key={d.value} value={d.value}>{d.label}</SelectItem>)}
                             </SelectContent>
                         </Select>
                     </div>
@@ -233,10 +260,7 @@ export default function BookAppointmentForm() {
                                     <SelectValue placeholder="Select a time slot" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                    <SelectItem value="1000">10:00 AM</SelectItem>
-                                    <SelectItem value="1100">11:00 AM</SelectItem>
-                                    <SelectItem value="1400">02:00 PM</SelectItem>
-                                    <SelectItem value="1500">03:00 PM</SelectItem>
+                                        {timeSlots.map(t => <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>)}
                                     </SelectContent>
                                 </Select>
                             </div>
@@ -244,12 +268,36 @@ export default function BookAppointmentForm() {
                     </div>
                 )}
                  {currentStep === 3 && (
-                    <div className="space-y-4 animate-in fade-in-50 duration-500">
-                        <Label className="text-lg font-medium text-center block">Additional Details</Label>
+                    <div className="space-y-4 animate-in fade-in-50 duration-500 max-w-lg mx-auto w-full">
+                        <Label className="text-lg font-medium text-center block">Confirm Your Appointment Details</Label>
+                        
+                        <Card className="bg-muted/50">
+                            <CardContent className="pt-6 space-y-4 text-sm">
+                                <div className="flex items-center gap-4">
+                                    <Briefcase className="h-5 w-5 text-primary"/>
+                                    <p><span className="font-semibold">Service:</span> {getLabel(services, service)}</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <Stethoscope className="h-5 w-5 text-primary"/>
+                                    <p><span className="font-semibold">Doctor:</span> {getLabel(doctors, doctor)}</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <Calendar className="h-5 w-5 text-primary"/>
+                                    <p><span className="font-semibold">Date:</span> {date ? format(date, "MMMM dd, yyyy") : 'Not selected'}</p>
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <Clock className="h-5 w-5 text-primary"/>
+                                    <p><span className="font-semibold">Time:</span> {getLabel(timeSlots, timeSlot)}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                        
+                        <Separator />
+                        
                         <Textarea 
                             id="notes" 
                             placeholder="Briefly describe your symptoms or reason for the visit... (optional)" 
-                            className="min-h-[120px] text-base max-w-lg mx-auto"
+                            className="min-h-[100px] text-base"
                             value={notes}
                             onChange={(e) => setNotes(e.target.value)}
                          />
@@ -280,3 +328,5 @@ export default function BookAppointmentForm() {
     </div>
   );
 }
+
+    
