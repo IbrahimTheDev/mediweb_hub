@@ -71,6 +71,12 @@ export default function BookAppointmentForm() {
   const [month, setMonth] = useState<number | undefined>();
   const [day, setDay] = useState<number | undefined>();
 
+  const [service, setService] = useState("");
+  const [doctor, setDoctor] = useState("");
+  const [timeSlot, setTimeSlot] = useState("");
+  const [notes, setNotes] = useState("");
+
+
   const years = Array.from({ length: 5 }, (_, i) => getYear(new Date()) + i);
   const months = Array.from({ length: 12 }, (_, i) => ({ value: i, label: format(new Date(2000, i), 'MMMM') }));
   const daysInMonth = year && month !== undefined ? getDaysInMonth(new Date(year, month)) : 31;
@@ -101,6 +107,19 @@ export default function BookAppointmentForm() {
 
 
   const nextStep = () => {
+    if (currentStep === 0 && !service) {
+        toast({ variant: "destructive", title: "Please select a service." });
+        return;
+    }
+    if (currentStep === 1 && !doctor) {
+        toast({ variant: "destructive", title: "Please select a doctor." });
+        return;
+    }
+    if (currentStep === 2 && (!date || !timeSlot)) {
+        toast({ variant: "destructive", title: "Please select a date and time slot." });
+        return;
+    }
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(step => step + 1);
     }
@@ -108,7 +127,7 @@ export default function BookAppointmentForm() {
 
   const prevStep = () => {
     if (currentStep > 0) {
-      setCurrentStep(step => step + 1);
+      setCurrentStep(step => step - 1);
     }
   };
 
@@ -139,7 +158,7 @@ export default function BookAppointmentForm() {
                 {currentStep === 0 && (
                     <div className="space-y-4 animate-in fade-in-50 duration-500">
                         <Label className="text-lg font-medium text-center block">Which service do you need?</Label>
-                         <Select required>
+                         <Select required value={service} onValueChange={setService}>
                             <SelectTrigger className="h-12 text-base max-w-sm mx-auto">
                                 <SelectValue placeholder="Select a department or specialty" />
                             </SelectTrigger>
@@ -156,7 +175,7 @@ export default function BookAppointmentForm() {
                 {currentStep === 1 && (
                      <div className="space-y-4 animate-in fade-in-50 duration-500">
                         <Label className="text-lg font-medium text-center block">Choose your preferred doctor</Label>
-                        <Select required>
+                        <Select required value={doctor} onValueChange={setDoctor}>
                             <SelectTrigger className="h-12 text-base max-w-sm mx-auto">
                                 <SelectValue placeholder="Select a doctor" />
                             </SelectTrigger>
@@ -205,7 +224,7 @@ export default function BookAppointmentForm() {
                             </div>
                             <div className="space-y-2">
                                 <Label>Available Slots</Label>
-                                <Select required>
+                                <Select required value={timeSlot} onValueChange={setTimeSlot}>
                                     <SelectTrigger className="h-12 text-base">
                                     <SelectValue placeholder="Select a time slot" />
                                     </SelectTrigger>
@@ -223,7 +242,13 @@ export default function BookAppointmentForm() {
                  {currentStep === 3 && (
                     <div className="space-y-4 animate-in fade-in-50 duration-500">
                         <Label className="text-lg font-medium text-center block">Additional Details</Label>
-                        <Textarea id="notes" placeholder="Briefly describe your symptoms or reason for the visit... (optional)" className="min-h-[120px] text-base max-w-lg mx-auto" />
+                        <Textarea 
+                            id="notes" 
+                            placeholder="Briefly describe your symptoms or reason for the visit... (optional)" 
+                            className="min-h-[120px] text-base max-w-lg mx-auto"
+                            value={notes}
+                            onChange={(e) => setNotes(e.target.value)}
+                         />
                     </div>
                 )}
             </CardContent>
