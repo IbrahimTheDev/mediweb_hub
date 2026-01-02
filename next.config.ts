@@ -1,41 +1,25 @@
-
-import type {NextConfig} from 'next';
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'placehold.co',
-        port: '',
-        pathname: '/**',
+        hostname: 'picsum.photos', 
       },
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'picsum.photos',
+        // This matches the error you just got
+        hostname: 'lzzorwginrxmykjjadnm.supabase.co', 
         port: '',
-        pathname: '/**',
+        pathname: '/storage/v1/object/public/**',
       },
     ],
   },
-  // In Next.js 14.2 and higher, you can configure allowedDevOrigins to allow cross-origin requests in development.
-  allowedDevOrigins: [
-    'https://*.cloudworkstations.dev',
-    'https://*.firebase.studio',
-  ],
 };
 
 export default nextConfig;

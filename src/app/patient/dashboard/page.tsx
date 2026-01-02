@@ -1,7 +1,8 @@
-
 "use client";
 
+import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -27,29 +28,39 @@ import {
   ArrowRight,
   ClipboardPlus,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
+
+// Stores
 import { useUserStore } from "@/store/user";
 import { usePrescriptionStore } from "@/store/prescriptions";
+import { useAppointmentStore } from "@/store/appointment";
 
-
-const appointments = [
-  { id: "apt-001", date: "2024-08-15", time: "10:00 AM", doctor: "Dr. Emily Carter", type: "Cardiology Check-up" },
-  { id: "apt-002", date: "2024-09-02", time: "02:30 PM", doctor: "Dr. Ben Adams", type: "Neurology Consultation" },
-];
-
+// Mock data for test results (keep until you build a Test Result store/table)
 const testResults = [
   { id: "res-001", date: "2024-07-20", test: "Lipid Panel", status: "Results Available" },
   { id: "res-002", date: "2024-07-11", test: "Complete Blood Count", status: "Results Available" },
 ];
 
-
 export default function PatientDashboardPage() {
   const router = useRouter();
   const { user } = useUserStore();
   const { prescriptions } = usePrescriptionStore();
+  const { appointments, fetchAppointments, subscribeToAppointments } = useAppointmentStore();
 
-  const patientPrescriptions = prescriptions.filter(p => p.patientId === user.id || p.patient === user.name).slice(0, 2);
+  React.useEffect(() => {
+    if (user?.id) {
+        // Fetch appointments where user is the patient
+        fetchAppointments(user.id, 'patient');
+        subscribeToAppointments(user.id, 'patient');
+    }
+  }, [user?.id, fetchAppointments, subscribeToAppointments]);
 
+  // Filters
+  const patientPrescriptions = prescriptions.filter(p => p.patientId === user?.id || p.patient === user?.name).slice(0, 2);
+  const upcomingAppointments = appointments.filter(a => a.status !== 'Rejected' && a.status !== 'Completed').slice(0, 3); // Show top 3
+
+  if (!user) {
+      return <div className="p-8">Please log in to view dashboard.</div>;
+  }
 
   return (
      <div className="grid gap-8 lg:grid-cols-3">
@@ -57,7 +68,7 @@ export default function PatientDashboardPage() {
             <Card className="bg-gradient-to-br from-primary/20 to-transparent">
                 <CardHeader>
                     <CardTitle className="font-headline text-3xl">Welcome back, {user.name.split(' ')[0]}!</CardTitle>
-                    <CardDescription>Here's a summary of your health dashboard. You have {appointments.length} upcoming appointments.</CardDescription>
+                    <CardDescription>Here's a summary of your health dashboard. You have {upcomingAppointments.length} upcoming appointments.</CardDescription>
                 </CardHeader>
             </Card>
             
@@ -77,17 +88,23 @@ export default function PatientDashboardPage() {
                     <TableRow>
                       <TableHead>Date & Time</TableHead>
                       <TableHead>Doctor</TableHead>
-                      <TableHead>Reason</TableHead>
+                      <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {appointments.map((appt) => (
-                      <TableRow key={appt.id} className="cursor-pointer" onClick={() => router.push(`/patient/appointments/${appt.id}`)}>
-                        <TableCell>{appt.date} at {appt.time}</TableCell>
-                        <TableCell>{appt.doctor}</TableCell>
-                        <TableCell>{appt.type}</TableCell>
-                      </TableRow>
-                    ))}
+                    {upcomingAppointments.length > 0 ? (
+                        upcomingAppointments.map((appt) => (
+                        <TableRow key={appt.id} className="cursor-pointer" onClick={() => router.push(`/patient/appointments/${appt.id}`)}>
+                            <TableCell>{appt.date} at {appt.time}</TableCell>
+                            <TableCell>{appt.doctorName}</TableCell>
+                            <TableCell>{appt.status}</TableCell>
+                        </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={3} className="text-center text-muted-foreground">No upcoming appointments.</TableCell>
+                        </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -106,24 +123,29 @@ export default function PatientDashboardPage() {
               <CardContent>
                 <Table>
                     <TableBody>
-                    {patientPrescriptions.map((presc) => (
-                        <TableRow key={presc.id}>
-                        <TableCell>
-                            <div className="font-medium">{presc.medications.map(m => m.medication).join(', ')}</div>
-                            <div className="text-sm text-muted-foreground">Issued on {presc.date} by {presc.doctor}</div>
-                        </TableCell>
-                        <TableCell className="text-right">
-                            <Button variant="outline" size="sm" asChild>
-                                <Link href={`/patient/prescriptions/${presc.id}`}>View</Link>
-                            </Button>
-                        </TableCell>
+                    {patientPrescriptions.length > 0 ? (
+                        patientPrescriptions.map((presc) => (
+                            <TableRow key={presc.id}>
+                            <TableCell>
+                                <div className="font-medium">{presc.medications.map(m => m.medication).join(', ')}</div>
+                                <div className="text-sm text-muted-foreground">Issued on {presc.date} by {presc.doctor}</div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                                <Button variant="outline" size="sm" asChild>
+                                    <Link href={`/patient/prescriptions/${presc.id}`}>View</Link>
+                                </Button>
+                            </TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={2} className="text-center text-muted-foreground">No recent prescriptions.</TableCell>
                         </TableRow>
-                    ))}
+                    )}
                     </TableBody>
                 </Table>
               </CardContent>
             </Card>
-
 
             <Card id="results" className="scroll-mt-20">
                 <CardHeader className="flex flex-row items-center justify-between">

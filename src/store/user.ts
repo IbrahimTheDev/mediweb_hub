@@ -1,49 +1,67 @@
-
 import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 
 type User = {
   id: string;
   name: string;
   email: string;
   mobile: string;
+  role?: string;
+  // New fields
+  registration_completed?: boolean;
+  specialty?: string;
+  hospital_name?: string;
 };
 
 type UserState = {
-  user: User;
+  user: User | null;
   avatar: string | null;
-  userType: 'patient' | 'doctor';
-  setUser: (user: Partial<User>) => void;
-  setAvatar: (avatar: string | null) => void;
-  setUserType: (userType: 'patient' | 'doctor') => void;
+  isLoading: boolean;
+  fetchUser: () => Promise<void>;
+  logout: () => Promise<void>;
 };
 
-const initialPatient: User = {
-  id: "P00123",
-  name: "Jane Doe",
-  email: "jane.doe@example.com",
-  mobile: "+1 234 567 890",
-};
-
-const initialDoctor: User = {
-    id: "D0C456",
-    name: "Dr. Ben Adams",
-    email: "b.adams@mediweb.com",
-    mobile: "+1 987 654 3210"
-};
-
-export const useUserStore = create<UserState>((set, get) => ({
-  user: initialPatient,
+export const useUserStore = create<UserState>((set) => ({
+  user: null,
   avatar: null,
-  userType: 'patient',
-  setUser: (newUser) => set((state) => ({ user: { ...state.user, ...newUser } })),
-  setAvatar: (avatar) => set({ avatar }),
-  setUserType: (userType) => {
-    if (get().userType !== userType) {
-        set({ 
-            userType, 
-            user: userType === 'patient' ? initialPatient : initialDoctor,
-            avatar: null,
+  isLoading: true,
+
+  fetchUser: async () => {
+    set({ isLoading: true });
+    
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session?.user) {
+        set({ user: null, isLoading: false });
+        return;
+    }
+
+    const { data: profile, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .single();
+
+    if (profile && !error) {
+        set({
+            user: {
+                id: profile.id,
+                name: profile.name,
+                email: profile.email,
+                mobile: profile.mobile || "",
+                role: profile.role,
+                registration_completed: profile.registration_completed,
+                specialty: profile.specialty,
+                hospital_name: profile.hospital_name
+            },
+            avatar: profile.image_url || null,
         });
     }
+    set({ isLoading: false });
   },
+
+  logout: async () => {
+    await supabase.auth.signOut();
+    set({ user: null, avatar: null });
+  }
 }));

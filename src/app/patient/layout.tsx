@@ -1,8 +1,7 @@
-
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import * as React from "react";
 import {
   SidebarProvider,
@@ -56,6 +55,9 @@ function NotificationsPopover() {
     const { notifications, markAsRead } = useNotificationStore();
     const { user } = useUserStore();
     
+    // FIX 1: Safety check - if user isn't loaded, show empty bell
+    if (!user) return <Button variant="ghost" size="icon"><Bell /></Button>;
+
     const unreadCount = notifications.filter(n => n.userId === user.id && !n.is_read).length;
 
     return (
@@ -102,7 +104,20 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user, avatar } = useUserStore();
+  const router = useRouter();
+  
+  // FIX 2: Get fetchUser and logout from store
+  const { user, avatar, fetchUser, logout } = useUserStore();
+
+  // FIX 3: Fetch user on mount
+  React.useEffect(() => {
+    fetchUser();
+  }, [fetchUser]);
+
+  const handleLogout = async () => {
+    await logout();
+    router.push('/login');
+  }
 
   const getIsActive = (href: string) => {
     if (href === "/patient/dashboard") {
@@ -110,7 +125,6 @@ export default function PatientLayout({
     }
     return pathname.startsWith(href);
   };
-
 
   return (
     <SidebarProvider>
@@ -142,11 +156,12 @@ export default function PatientLayout({
         <SidebarFooter>
            <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Log Out">
-                  <Link href="/login">
+                {/* FIX 4: Use handleLogout */}
+                <SidebarMenuButton asChild tooltip="Log Out" onClick={handleLogout} className="cursor-pointer">
+                  <span>
                     <LogOut />
                     <span>Log Out</span>
-                  </Link>
+                  </span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
            </SidebarMenu>
@@ -165,7 +180,8 @@ export default function PatientLayout({
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={avatar || "https://picsum.photos/seed/patient/100/100"} data-ai-hint="person photo" alt="Patient" />
                   <AvatarFallback>
-                    <User />
+                    {/* FIX 5: Check if user exists before accessing name */}
+                    {user?.name ? user.name[0] : <User />}
                   </AvatarFallback>
                 </Avatar>
               </Button>
@@ -173,9 +189,10 @@ export default function PatientLayout({
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name}</p>
+                  {/* FIX 6: The Critical Fix - Check if user is null */}
+                  <p className="text-sm font-medium leading-none">{user?.name || "Loading..."}</p>
                   <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
+                    {user?.email || ""}
                   </p>
                 </div>
               </DropdownMenuLabel>
@@ -187,11 +204,9 @@ export default function PatientLayout({
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/login">
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
-                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -1,16 +1,17 @@
-
 "use client";
 
 import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 
 export type AppointmentStatus = "Pending" | "Accepted" | "Rejected" | "Reschedule_Requested" | "Completed" | "Arrived";
 
 export type Appointment = {
     id: string;
-    patient: string;
     patientId: string;
+    patientName?: string; // Joined field
+    doctorId: string;
+    doctorName?: string; // Joined field
     service: string;
-    doctor: string;
     date: string;
     time: string;
     reason: string;
@@ -20,37 +21,103 @@ export type Appointment = {
 
 type AppointmentState = {
   appointments: Appointment[];
-  addAppointment: (appointment: Omit<Appointment, 'status' | 'id' | 'patient' | 'patientId'>) => void;
-  updateAppointmentStatus: (id: string, status: AppointmentStatus) => void;
+  isLoading: boolean;
+  fetchAppointments: (userId: string, role: 'patient' | 'doctor') => Promise<void>;
+  addAppointment: (appointment: Omit<Appointment, 'id' | 'status' | 'patientName' | 'doctorName'>) => Promise<void>;
+  updateAppointmentStatus: (id: string, status: AppointmentStatus) => Promise<void>;
+  subscribeToAppointments: (userId: string, role: 'patient' | 'doctor') => void;
 };
 
-const initialAppointments: Appointment[] = [
-  { id: "apt-001", date: "2024-08-15", time: "10:00 AM", doctor: "Dr. Emily Carter", reason: "Cardiology Check-up", status: "Accepted", patient: "Jane Doe", patientId: "P00123", service: "Cardiology", notes: "" },
-  { id: "apt-002", date: "2024-09-02", time: "02:30 PM", doctor: "Dr. Ben Adams", reason: "Neurology Consultation", status: "Accepted", patient: "Jane Doe", patientId: "P00123", service: "Neurology", notes: "" },
-  { id: "apt-003", date: "2024-07-10", time: "09:00 AM", doctor: "Dr. Olivia Chen", reason: "Pediatric Follow-up", status: "Completed", patient: "Jane Doe", patientId: "P00123", service: "Pediatrics", notes: "" },
-  { id: "apt-004", date: "2024-09-20", time: "11:00 AM", doctor: "Dr. Emily Carter", reason: "Annual Physical Exam", status: "Pending", patient: "John Smith", patientId: "P001", service: "Primary Care", notes: "Feeling tired lately." },
-];
-
 export const useAppointmentStore = create<AppointmentState>((set, get) => ({
-  appointments: initialAppointments,
-  addAppointment: (appointment) => {
-    const newAppointment: Appointment = {
-      ...appointment,
-      id: `apt-${Date.now()}`,
-      status: 'Pending',
-      patient: "Jane Doe", // assuming logged in user
-      patientId: "P00123",
-      reason: appointment.notes || 'Not specified',
-    };
-    set((state) => ({
-      appointments: [newAppointment, ...state.appointments]
-    }));
+  appointments: [],
+  isLoading: false,
+
+  fetchAppointments: async (userId, role) => {
+    set({ isLoading: true });
+    
+    // Doctors see appointments where they are the doctor; Patients see where they are the patient
+    const column = role === 'doctor' ? 'doctor_id' : 'patient_id';
+
+    const { data, error } = await supabase
+      .from('appointments')
+      .select(`
+        *,
+        patient:profiles!patient_id(name),
+        doctor:profiles!doctor_id(name)
+      `)
+      .eq(column, userId)
+      .order('date', { ascending: true });
+
+    if (!error && data) {
+      const formatted: Appointment[] = data.map((item: any) => ({
+        id: item.id,
+        patientId: item.patient_id,
+        patientName: item.patient?.name || 'Unknown',
+        doctorId: item.doctor_id,
+        doctorName: item.doctor?.name || 'Unknown',
+        service: item.service,
+        date: item.date,
+        time: item.time,
+        reason: item.reason,
+        notes: item.notes,
+        status: item.status,
+      }));
+      set({ appointments: formatted });
+    }
+    set({ isLoading: false });
   },
-  updateAppointmentStatus: (id, status) => {
+
+  addAppointment: async (appointment) => {
+    // Convert camelCase to snake_case for DB
+    const dbPayload = {
+        patient_id: appointment.patientId,
+        doctor_id: appointment.doctorId,
+        service: appointment.service,
+        date: appointment.date,
+        time: appointment.time,
+        reason: appointment.reason,
+        notes: appointment.notes,
+        status: 'Pending'
+    };
+
+    const { error } = await supabase
+        .from('appointments')
+        .insert([dbPayload]);
+    
+    if (error) console.error("Error adding appointment:", error);
+    // No need to manually update state if subscription is active, but can do so for optimism
+  },
+
+  updateAppointmentStatus: async (id, status) => {
+    // Optimistic update
     set((state) => ({
-        appointments: state.appointments.map(appt => 
-            appt.id === id ? { ...appt, status } : appt
-        )
+        appointments: state.appointments.map(a => a.id === id ? { ...a, status } : a)
     }));
+
+    await supabase
+        .from('appointments')
+        .update({ status })
+        .eq('id', id);
+  },
+
+  subscribeToAppointments: (userId, role) => {
+    const column = role === 'doctor' ? 'doctor_id' : 'patient_id';
+    
+    supabase
+      .channel('realtime-appointments')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'appointments',
+          filter: `${column}=eq.${userId}`
+        },
+        () => {
+          // Re-fetch when any change happens
+          get().fetchAppointments(userId, role);
+        }
+      )
+      .subscribe();
   }
 }));

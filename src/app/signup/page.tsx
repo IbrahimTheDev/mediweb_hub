@@ -1,102 +1,166 @@
+"use client";
 
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Logo } from "@/components/logo";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { Mail, Lock, Phone, ArrowLeft } from "lucide-react";
-
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SignupPage() {
-    const signupImage = PlaceHolderImages.find(p => p.id === 'hero-image');
+  const router = useRouter();
+  const { toast } = useToast();
+  const loginImage = PlaceHolderImages.find((p) => p.id === "hero-image");
+
+  const [isLoading, setIsLoading] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    role: "patient" as "patient" | "doctor",
+  });
+
+  const handleSignup = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    try {
+      // 1. Create Auth User
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+      });
+
+      if (authError) throw new Error(authError.message);
+      if (!authData.user) throw new Error("Signup failed");
+
+      // 2. Create Profile Entry
+      const { error: profileError } = await supabase.from("profiles").insert([
+        {
+          id: authData.user.id,
+          name: formData.name,
+          email: formData.email,
+          role: formData.role,
+        },
+      ]);
+
+      if (profileError) throw new Error(profileError.message);
+
+      toast({
+        title: "Account Created",
+        description: "Welcome to MediWeb Hub!",
+      });
+
+      // 3. Smart Routing
+      if (formData.role === "doctor") {
+        // Doctors MUST fill more details
+        router.push("/doctor/registration");
+      } else {
+        // Patients go straight to dashboard
+        router.push("/patient/dashboard");
+      }
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-     <div className="relative w-full h-screen">
-      {signupImage && (
-        <Image
-          src={signupImage.imageUrl}
-          alt={signupImage.description}
-          fill
-          className="object-cover"
-          data-ai-hint={signupImage.imageHint}
-        />
-      )}
-      <div className="absolute inset-0 bg-black/60" />
-      <Button asChild variant="ghost" className="absolute top-4 left-4 z-20 text-white hover:bg-white/10 hover:text-white">
-        <Link href="/">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Home
-        </Link>
-      </Button>
-      <div className="relative z-10 flex items-center justify-center h-full py-12">
-        <div className="w-full max-w-md p-8 space-y-6 bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl">
-          <div className="grid gap-2 text-center text-white">
-             <Link href="/" className="flex items-center gap-2 text-white justify-center mb-4">
+    <div className="w-full lg:grid lg:min-h-[600px] lg:grid-cols-2 xl:min-h-[800px] h-screen">
+      <div className="flex items-center justify-center py-12">
+        <div className="mx-auto grid w-[350px] gap-6">
+          <div className="grid gap-2 text-center">
+            <div className="flex justify-center mb-2">
               <Logo />
-              <h1 className="text-3xl font-bold font-headline">Create an Account</h1>
-            </Link>
-            <p className="text-balance text-white/80">
-                Join MediWeb Hub to manage your health journey.
+            </div>
+            <h1 className="text-3xl font-bold font-headline">Sign Up</h1>
+            <p className="text-balance text-muted-foreground">
+              Enter your information to create an account
             </p>
           </div>
-          
-            <div className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="mobile-no" className="text-white/80">Mobile No.</Label>
-                 <div className="relative">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
-                    <Input 
-                        id="mobile-no" 
-                        type="tel"
-                        placeholder="+1 234 567 890" 
-                        required
-                        className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:ring-primary"
-                    />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="email" className="text-white/80">Email</Label>
-                <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
-                    <Input
-                        id="email"
-                        type="email"
-                        placeholder="m@example.com"
-                        required
-                         className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:ring-primary"
-                    />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="password" className="text-white/80">Password</Label>
-                 <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
-                    <Input 
-                        id="password"
-                        type="password"
-                        placeholder="••••••••"
-                        className="pl-10 bg-white/20 border-white/30 text-white placeholder:text-white/50 focus:ring-primary"
-                    />
-                </div>
-              </div>
-               <div className="flex gap-2 pt-2">
-                    <Button type="submit" className="w-full" asChild>
-                        <Link href="/patient/dashboard">Sign up as Patient</Link>
-                    </Button>
-                    <Button type="submit" variant="secondary" className="w-full" asChild>
-                        <Link href="/doctor/registration">Sign up as Doctor</Link>
-                    </Button>
-                </div>
+          <form onSubmit={handleSignup} className="grid gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                required
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
             </div>
-            <div className="mt-2 text-center text-sm text-white/80">
-              Already have an account?{" "}
-              <Link href="/login" className="underline text-primary font-semibold">
-                Login
-              </Link>
+            <div className="grid gap-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="m@example.com"
+                required
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              />
             </div>
+            <div className="grid gap-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              />
+            </div>
+            
+            <div className="grid gap-2">
+                <Label>I am a...</Label>
+                <RadioGroup 
+                    defaultValue="patient" 
+                    onValueChange={(val: "patient"|"doctor") => setFormData({...formData, role: val})}
+                    className="flex gap-4"
+                >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="patient" id="r-patient" />
+                        <Label htmlFor="r-patient">Patient</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="doctor" id="r-doctor" />
+                        <Label htmlFor="r-doctor">Doctor</Label>
+                    </div>
+                </RadioGroup>
+            </div>
+
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Create Account"}
+            </Button>
+          </form>
+          <div className="mt-4 text-center text-sm">
+            Already have an account?{" "}
+            <Link href="/login" className="underline">
+              Login
+            </Link>
+          </div>
         </div>
+      </div>
+      <div className="hidden bg-muted lg:block relative">
+        {loginImage && (
+             <Image
+             src={loginImage.imageUrl}
+             alt="Image"
+             fill
+             className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+           />
+        )}
       </div>
     </div>
   );

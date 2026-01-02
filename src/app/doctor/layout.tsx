@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -25,6 +24,7 @@ import {
   LogOut,
   User,
   Bell,
+  Loader2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -40,8 +40,6 @@ import { useUserStore } from "@/store/user";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNotificationStore } from "@/store/notifications";
 import { Badge } from "@/components/ui/badge";
-import { useDoctorStore } from "@/store/doctor";
-import DoctorRegistrationPage from "./registration/page";
 
 const navItems = [
   { href: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -53,7 +51,7 @@ const navItems = [
 function NotificationsPopover() {
     const { notifications, markAsRead } = useNotificationStore();
     const { user } = useUserStore();
-    
+    if (!user) return <Button variant="ghost" size="icon"><Bell /></Button>;
     const unreadCount = notifications.filter(n => n.userId === user.id && !n.is_read).length;
 
     return (
@@ -70,74 +68,60 @@ function NotificationsPopover() {
                  <div className="grid gap-4">
                     <div className="space-y-2">
                         <h4 className="font-medium leading-none">Notifications</h4>
-                        <p className="text-sm text-muted-foreground">
-                        Recent updates and alerts.
-                        </p>
+                        <p className="text-sm text-muted-foreground">Recent updates.</p>
                     </div>
                      <div className="grid gap-2">
                         {notifications.filter(n => n.userId === user.id).slice(0, 5).map(n => (
-                            <div key={n.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:pb-0 last:border-b-0 border-b">
+                            <div key={n.id} className="grid grid-cols-[25px_1fr] items-start pb-4 border-b">
                                 <span className={`flex h-2 w-2 translate-y-1 rounded-full ${!n.is_read ? 'bg-primary' : 'bg-transparent'}`} />
                                 <div className="grid gap-1">
                                     <p className="text-sm font-medium">{n.message}</p>
-                                    <p className="text-sm text-muted-foreground">{new Date(n.created_at).toLocaleString()}</p>
                                 </div>
                             </div>
                         ))}
                     </div>
-                    {unreadCount > 0 && (
-                        <Button variant="link" onClick={() => markAsRead(user.id)}>Mark all as read</Button>
-                    )}
                  </div>
             </PopoverContent>
         </Popover>
     )
 }
 
-export default function DoctorLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function DoctorLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, avatar } = useUserStore();
-  const { doctors } = useDoctorStore();
-  
-  const [isRegistered, setIsRegistered] = React.useState(false);
-  const [isLoading, setIsLoading] = React.useState(true);
-
+  const { user, avatar, fetchUser, isLoading } = useUserStore();
 
   React.useEffect(() => {
-    // This logic should be on the client to access the store
-    const isDocRegistered = doctors.some(doc => doc.name === user.name);
+    fetchUser();
+  }, [fetchUser]);
 
-    if (pathname === '/doctor/registration') {
-        setIsRegistered(false); // Stay on registration page
-    } else if (!isDocRegistered) {
-        router.replace('/doctor/registration');
-    } else {
-        setIsRegistered(true);
+  // PROTECTION LOGIC
+  React.useEffect(() => {
+    if (!isLoading && user) {
+        // If user is on registration page but is already registered, go to dashboard
+        if (pathname === '/doctor/registration' && user.registration_completed) {
+            router.replace('/doctor/dashboard');
+        }
+        // If user is NOT on registration page but is NOT registered, go to registration
+        else if (pathname !== '/doctor/registration' && !user.registration_completed) {
+            router.replace('/doctor/registration');
+        }
     }
-    setIsLoading(false);
-  }, [pathname, router, doctors, user.name]);
+  }, [isLoading, user, pathname, router]);
 
-
-  const getIsActive = (href: string) => {
-    if (href === "/doctor/dashboard") {
-      return pathname === href;
-    }
-    return pathname.startsWith(href);
-  };
-  
-  if (isLoading) {
-    // You can return a global loading screen here
-    return <div>Loading...</div>
+  const handleLogout = async () => {
+    await useUserStore.getState().logout();
+    router.push('/login');
   }
 
-  if (!isRegistered) {
-      // Render the registration page without the main layout
-      return <DoctorRegistrationPage />;
+  if (isLoading) {
+    return <div className="h-screen w-full flex items-center justify-center"><Loader2 className="animate-spin h-8 w-8 text-primary"/></div>
+  }
+
+  // If we are on the registration page, render only the children (the form)
+  // This prevents the sidebar/header from showing up on the "Setup" page
+  if (pathname === '/doctor/registration') {
+      return <>{children}</>;
   }
 
   return (
@@ -153,11 +137,7 @@ export default function DoctorLayout({
           <SidebarMenu>
             {navItems.map((item) => (
               <SidebarMenuItem key={item.label}>
-                <SidebarMenuButton
-                  asChild
-                  isActive={getIsActive(item.href)}
-                  tooltip={item.label}
-                >
+                <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)} tooltip={item.label}>
                   <Link href={item.href}>
                     <item.icon />
                     <span>{item.label}</span>
@@ -170,11 +150,8 @@ export default function DoctorLayout({
         <SidebarFooter>
            <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild tooltip="Log Out">
-                  <Link href="/login">
-                    <LogOut />
-                    <span>Log Out</span>
-                  </Link>
+                <SidebarMenuButton asChild tooltip="Log Out" onClick={handleLogout} className="cursor-pointer">
+                  <span><LogOut /><span>Log Out</span></span>
                 </SidebarMenuButton>
               </SidebarMenuItem>
            </SidebarMenu>
@@ -191,35 +168,22 @@ export default function DoctorLayout({
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={avatar || "https://picsum.photos/seed/doctor-profile/100/100"} data-ai-hint="doctor portrait" alt="Doctor" />
-                  <AvatarFallback>
-                    <User />
-                  </AvatarFallback>
+                  <AvatarImage src={avatar || ""} alt="Doctor" />
+                  <AvatarFallback>{user?.name?.[0] || "Dr"}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
                <DropdownMenuLabel>
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user.name}</p>
-                  <p className="text-xs leading-none text-muted-foreground">
-                    {user.email}
-                  </p>
+                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/profile">
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/login">
+              <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
-                </Link>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
