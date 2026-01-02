@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import * as React from "react";
-import { useAppointmentStore } from "@/store/appointment";
+import { useAppointmentStore, type AppointmentStatus } from "@/store/appointment";
 import {
   Dialog,
   DialogContent,
@@ -31,8 +31,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useNotificationStore } from "@/store/notifications";
@@ -65,7 +63,7 @@ function RescheduleDialog({ appointment, onReschedule }: { appointment: any; onR
                 <DialogHeader>
                     <DialogTitle>Request Reschedule</DialogTitle>
                     <DialogDescription>
-                        Suggest a new time or send a message to the patient.
+                        Send a message to the patient requesting them to choose a new time.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="space-y-4">
@@ -93,19 +91,22 @@ export default function DoctorDashboardPage() {
   const { toast } = useToast();
 
 
-  const handleStatusUpdate = (id: string, patientId: string, patientName: string, status: "Accepted" | "Rejected" | "Reschedule_Requested", notes?: string) => {
+  const handleStatusUpdate = (id: string, patientId: string, patientName: string, status: AppointmentStatus, notes?: string) => {
     updateAppointmentStatus(id, status);
     
     let message = "";
     if (status === "Accepted") message = "Your appointment has been confirmed.";
     if (status === "Rejected") message = "Your appointment request was declined.";
-    if (status === "Reschedule_Requested") message = `Your doctor has requested to reschedule your appointment. Reason: ${notes}`;
+    if (status === "Reschedule_Requested") message = `Your doctor has requested to reschedule. Note: ${notes || 'Please select a new time.'}`;
     
-    addNotification({
-        userId: patientId,
-        message: message,
-        type: 'status_change'
-    });
+    if(message) {
+      addNotification({
+          userId: patientId,
+          message: message,
+          type: 'status_change'
+      });
+    }
+
 
     toast({
         title: `Appointment ${status.replace('_', ' ')}`,
@@ -138,7 +139,7 @@ export default function DoctorDashboardPage() {
     <Tabs defaultValue="appointments" className="space-y-4">
       <TabsList>
         <TabsTrigger value="appointments">Today's Appointments</TabsTrigger>
-        <TabsTrigger value="pending">Pending Requests</TabsTrigger>
+        <TabsTrigger value="pending">Pending Requests <Badge className="ml-2">{pendingAppointments.length}</Badge></TabsTrigger>
         <TabsTrigger value="patients">Recent Patients</TabsTrigger>
         <TabsTrigger value="prescriptions" onClick={() => router.push('/doctor/prescriptions/new')}>Digital Prescription</TabsTrigger>
       </TabsList>
@@ -205,21 +206,29 @@ export default function DoctorDashboardPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {pendingAppointments.map((appt) => (
-                  <TableRow key={appt.id}>
-                    <TableCell>{appt.date} at {appt.time}</TableCell>
-                    <TableCell>{appt.patient}</TableCell>
-                    <TableCell>{appt.reason}</TableCell>
-                    <TableCell className="text-right space-x-2">
-                        <Button size="sm" variant="secondary" onClick={() => handleStatusUpdate(appt.id, appt.patientId, appt.patient, "Accepted")}>Approve</Button>
-                        <Button size="sm" variant="destructive" onClick={() => handleStatusUpdate(appt.id, appt.patientId, appt.patient, "Rejected")}>Decline</Button>
-                        <RescheduleDialog 
-                            appointment={appt} 
-                            onReschedule={(id, notes) => handleStatusUpdate(id, appt.patientId, appt.patient, "Reschedule_Requested", notes)} 
-                        />
+                {pendingAppointments.length > 0 ? (
+                  pendingAppointments.map((appt) => (
+                    <TableRow key={appt.id}>
+                      <TableCell>{appt.date} at {appt.time}</TableCell>
+                      <TableCell>{appt.patient}</TableCell>
+                      <TableCell>{appt.reason}</TableCell>
+                      <TableCell className="text-right space-x-2">
+                          <Button size="sm" variant="secondary" onClick={() => handleStatusUpdate(appt.id, appt.patientId, appt.patient, "Accepted")}>Approve</Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleStatusUpdate(appt.id, appt.patientId, appt.patient, "Rejected")}>Decline</Button>
+                          <RescheduleDialog 
+                              appointment={appt} 
+                              onReschedule={(id, notes) => handleStatusUpdate(id, appt.patientId, appt.patient, "Reschedule_Requested", notes)} 
+                          />
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                   <TableRow>
+                    <TableCell colSpan={4} className="text-center h-24">
+                      No pending requests.
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </CardContent>
@@ -269,3 +278,5 @@ export default function DoctorDashboardPage() {
     </Tabs>
   );
 }
+
+    

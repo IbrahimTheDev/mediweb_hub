@@ -30,6 +30,7 @@ export default function AppointmentsPage() {
   const getBadgeVariant = (status: string) => {
     switch (status) {
       case "Accepted":
+      case "Confirmed":
         return "default";
       case "Completed":
         return "secondary";
@@ -80,13 +81,13 @@ export default function AppointmentsPage() {
                 <TableCell>{appt.doctor}</TableCell>
                 <TableCell>{appt.reason}</TableCell>
                 <TableCell>
-                    <Badge variant={getBadgeVariant(appt.status)}>{appt.status.replace('_', ' ')}</Badge>
+                    <Badge variant={getBadgeVariant(appt.status)}>{appt.status.replace(/_/g, ' ')}</Badge>
                 </TableCell>
                 <TableCell className="text-right">
                     {appt.status === "Reschedule_Requested" ? (
                         <Button variant="secondary" size="sm" onClick={() => router.push(`/patient/book-appointment?reschedule=true&date=${appt.date}`)}>Select New Time</Button>
                     ) : (
-                        <Button variant="outline" size="sm" onClick={() => router.push(`/patient/appointments/${appt.id}`)}>View Details</Button>
+                         <Button variant="outline" size="sm" onClick={() => router.push(`/patient/appointments/${appt.id}`)} disabled={appt.status !== "Accepted" && appt.status !== "Completed"}>View Details</Button>
                     )}
                 </TableCell>
               </TableRow>
@@ -97,3 +98,5 @@ export default function AppointmentsPage() {
     </Card>
   );
 }
+
+    
