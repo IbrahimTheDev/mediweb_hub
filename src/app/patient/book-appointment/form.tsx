@@ -15,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Check, Calendar, Clock, Stethoscope, Briefcase } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
+import { useAppointmentStore } from "@/store/appointment";
 
 const steps = [
   { id: 'service', name: 'Service' },
@@ -87,6 +88,7 @@ export default function BookAppointmentForm() {
   const dateParam = searchParams.get("date");
   const { toast } = useToast();
   const router = useRouter();
+  const { setAppointment } = useAppointmentStore();
 
   const [currentStep, setCurrentStep] = useState(0);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -166,11 +168,23 @@ export default function BookAppointmentForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    
+    const newAppointment = {
+        id: `apt-${Date.now()}`,
+        service: getLabel(services, service),
+        doctor: getLabel(doctors, doctor),
+        date: date ? format(date, "yyyy-MM-dd") : 'Not selected',
+        time: getLabel(timeSlots, timeSlot),
+        notes: notes,
+    };
+    
+    setAppointment(newAppointment);
+
     toast({
         title: "Appointment Requested!",
         description: `Your request has been submitted.`,
     });
-    router.push('/patient/dashboard');
+    router.push('/patient/book-appointment/confirmation');
   };
 
   const getLabel = (arr: {value: string, label: string}[], value: string) => {
@@ -328,3 +342,5 @@ export default function BookAppointmentForm() {
     </div>
   );
 }
+
+    
