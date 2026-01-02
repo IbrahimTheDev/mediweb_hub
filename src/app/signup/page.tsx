@@ -86,7 +86,7 @@ export default function SignupPage() {
                         <Link href="/patient/dashboard">Sign up as Patient</Link>
                     </Button>
                     <Button type="submit" variant="secondary" className="w-full" asChild>
-                        <Link href="/doctor/dashboard">Sign up as Doctor</Link>
+                        <Link href="/doctor/registration">Sign up as Doctor</Link>
                     </Button>
                 </div>
             </div>

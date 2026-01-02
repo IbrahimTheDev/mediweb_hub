@@ -1,3 +1,5 @@
+
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -5,14 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { Stethoscope, HeartPulse, Pill, Microscope, Calendar, Clock, MapPin, Phone, Mail } from "lucide-react";
 import { Logo } from "@/components/logo";
+import { useDoctorStore } from "@/store/doctor";
 
-const heroImage = PlaceHolderImages.find(p => p.id === 'hero-image');
-const doctors = [
-  { name: "Dr. Emily Carter", specialty: "Cardiologist", imageId: "doctor-1", experience: "12+ years", availability: "Mon - Fri, 9am - 5pm" },
-  { name: "Dr. Ben Adams", specialty: "Neurologist", imageId: "doctor-2", experience: "15+ years", availability: "Tue - Sat, 10am - 6pm" },
-  { name: "Dr. Olivia Chen", specialty: "Pediatrician", imageId: "doctor-3", experience: "8+ years", availability: "Mon, Wed, Fri, 8am - 4pm" },
-  { name: "Dr. James William", specialty: "Orthopedist", imageId: "doctor-5", experience: "9+ years", availability: "Mon - Thu, 8am - 5pm" },
-];
 
 const services = [
   { icon: HeartPulse, name: "Cardiology", description: "Expert care for your heart." },
@@ -57,6 +53,8 @@ function Footer() {
 }
 
 export default function Home() {
+    const { doctors } = useDoctorStore();
+    const heroImage = PlaceHolderImages.find(p => p.id === 'hero-image');
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -122,7 +120,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
               {doctors.map((doctor) => {
-                const image = PlaceHolderImages.find(p => p.id === doctor.imageId);
+                const image = doctor.imageUrl ? { imageUrl: doctor.imageUrl, description: `Portrait of ${doctor.name}`, imageHint: 'doctor portrait' } : PlaceHolderImages.find(p => p.id === 'doctor-1');
                 return (
                   <Card key={doctor.name} className="overflow-hidden group flex flex-col">
                     {image && (
