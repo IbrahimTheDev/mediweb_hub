@@ -166,9 +166,6 @@ export default function BookAppointmentForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (currentStep < steps.length - 1) {
-        return;
-    }
     toast({
         title: "Appointment Requested!",
         description: `Your request has been submitted.`,
@@ -294,13 +291,16 @@ export default function BookAppointmentForm() {
                         
                         <Separator />
                         
-                        <Textarea 
-                            id="notes" 
-                            placeholder="Briefly describe your symptoms or reason for the visit... (optional)" 
-                            className="min-h-[100px] text-base"
-                            value={notes}
-                            onChange={(e) => setNotes(e.target.value)}
-                         />
+                         <div className="space-y-2">
+                            <Label htmlFor="notes">Additional Notes / Reason for Visit (Optional)</Label>
+                            <Textarea 
+                                id="notes" 
+                                placeholder="Briefly describe your symptoms or reason for the visit..." 
+                                className="min-h-[100px] text-base"
+                                value={notes}
+                                onChange={(e) => setNotes(e.target.value)}
+                            />
+                        </div>
                     </div>
                 )}
             </CardContent>
@@ -328,5 +328,3 @@ export default function BookAppointmentForm() {
     </div>
   );
 }
-
-    
