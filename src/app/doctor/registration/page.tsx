@@ -15,10 +15,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Upload, User, Briefcase, Calendar, Clock } from "lucide-react";
+import { Upload, User, Briefcase, Calendar, Clock, ArrowLeft } from "lucide-react";
 import { useUserStore } from "@/store/user";
 import { useDoctorStore } from "@/store/doctor";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function DoctorRegistrationPage() {
     const { toast } = useToast();
@@ -77,7 +78,7 @@ export default function DoctorRegistrationPage() {
     }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-muted/40">
+    <div className="flex items-center justify-center min-h-screen bg-muted/40 p-4">
         <Card className="w-full max-w-2xl">
             <CardHeader>
             <CardTitle className="font-headline text-2xl">Doctor Registration</CardTitle>
@@ -87,7 +88,7 @@ export default function DoctorRegistrationPage() {
             </CardHeader>
             <form onSubmit={handleSubmit}>
                 <CardContent className="space-y-6">
-                     <div className="flex items-center gap-6">
+                     <div className="flex flex-col sm:flex-row items-center gap-6">
                         <div className="relative">
                             <div className="w-24 h-24 rounded-full bg-muted flex items-center justify-center overflow-hidden border-2 border-dashed">
                                 {avatar ? (
@@ -114,7 +115,7 @@ export default function DoctorRegistrationPage() {
                                 <span className="sr-only">Upload picture</span>
                             </Button>
                         </div>
-                        <div className="flex-1 space-y-2">
+                        <div className="flex-1 space-y-2 w-full">
                              <Label htmlFor="name">Full Name</Label>
                              <Input id="name" value={name} onChange={(e) => setName(e.target.value)} required placeholder="e.g., Dr. Jane Doe"/>
                         </div>
@@ -143,7 +144,13 @@ export default function DoctorRegistrationPage() {
                         </div>
                     </div>
                 </CardContent>
-                <CardFooter className="border-t pt-6 flex justify-end">
+                <CardFooter className="border-t pt-6 flex justify-between">
+                     <Button variant="outline" asChild>
+                        <Link href="/">
+                            <ArrowLeft className="mr-2 h-4 w-4" />
+                            Back to Home
+                        </Link>
+                    </Button>
                     <Button size="lg" type="submit">Complete Registration</Button>
                 </CardFooter>
             </form>
