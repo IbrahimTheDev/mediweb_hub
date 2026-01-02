@@ -17,17 +17,27 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function ConfirmationPage() {
-    const { appointment } = useAppointmentStore();
+    const { appointments } = useAppointmentStore();
     const router = useRouter();
+    // Get the most recent appointment, which should be the one just created.
+    const appointment = appointments[0];
+
 
     useEffect(() => {
-        if (!appointment) {
-            router.replace('/patient/dashboard');
+        if (!appointment || appointment.status !== 'Pending') {
+            // If there's no pending appointment, maybe redirect.
+            // For now, we assume the latest one is the one we just booked.
+            // A more robust solution might pass an ID or use a dedicated state field.
         }
     }, [appointment, router]);
 
 
     if (!appointment) {
+        // This can happen if the user navigates here directly.
+        // Redirecting to dashboard is a safe fallback.
+        useEffect(() => {
+            router.replace('/patient/dashboard');
+        },[router])
         return null;
     }
 
@@ -38,7 +48,7 @@ export default function ConfirmationPage() {
           <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
           <CardTitle className="font-headline text-3xl">Appointment Requested!</CardTitle>
           <CardDescription>
-            Your appointment has been successfully requested. Please check your dashboard for confirmation.
+            Your request has been sent and is awaiting the doctor's approval. You will receive a notification once the status is updated.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -94,5 +104,3 @@ export default function ConfirmationPage() {
     </div>
   );
 }
-
-    

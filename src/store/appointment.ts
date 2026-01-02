@@ -20,7 +20,7 @@ export type Appointment = {
 
 type AppointmentState = {
   appointments: Appointment[];
-  setAppointment: (appointment: Omit<Appointment, 'status' | 'id' | 'patient' | 'patientId'>) => void;
+  addAppointment: (appointment: Omit<Appointment, 'status' | 'id' | 'patient' | 'patientId'>) => void;
   updateAppointmentStatus: (id: string, status: AppointmentStatus) => void;
 };
 
@@ -33,7 +33,7 @@ const initialAppointments: Appointment[] = [
 
 export const useAppointmentStore = create<AppointmentState>((set, get) => ({
   appointments: initialAppointments,
-  setAppointment: (appointment) => {
+  addAppointment: (appointment) => {
     const newAppointment: Appointment = {
       ...appointment,
       id: `apt-${Date.now()}`,

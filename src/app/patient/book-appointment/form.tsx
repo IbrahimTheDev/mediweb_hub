@@ -91,7 +91,7 @@ export default function BookAppointmentForm() {
   const isReschedule = searchParams.get("reschedule");
   const { toast } = useToast();
   const router = useRouter();
-  const { setAppointment } = useAppointmentStore();
+  const { addAppointment } = useAppointmentStore();
   const { user } = useUserStore();
   const { addNotification } = useNotificationStore();
 
@@ -183,7 +183,7 @@ export default function BookAppointmentForm() {
         notes: notes,
     };
     
-    setAppointment(appointmentData);
+    addAppointment(appointmentData);
     
     addNotification({
         userId: "D0C456", // Hardcoded doctor ID for now
