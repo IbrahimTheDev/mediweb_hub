@@ -1,4 +1,6 @@
 
+"use client";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +13,19 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Calendar, Clock, MapPin, Stethoscope, User } from "lucide-react";
 import Link from "next/link";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 const appointmentDetails = {
     id: "apt-001",
@@ -28,6 +43,17 @@ const appointmentDetails = {
 export default function AppointmentDetailsPage({ params }: { params: { id: string } }) {
   // In a real app, you would fetch appointment details using params.id
   const { date, time, doctor, specialty, reason, clinic, address, instructions } = appointmentDetails;
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handleCancelAppointment = () => {
+    // In a real app, you would also make an API call to cancel the appointment
+    toast({
+      title: "Appointment Canceled",
+      description: "Your appointment has been successfully canceled.",
+    });
+    router.push("/patient/appointments");
+  }
 
   return (
     <div className="max-w-4xl mx-auto">
@@ -92,7 +118,25 @@ export default function AppointmentDetailsPage({ params }: { params: { id: strin
           </div>
         </CardContent>
         <CardFooter className="flex justify-end gap-2">
-            <Button variant="outline">Cancel</Button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">Cancel</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure you want to cancel?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently cancel your appointment.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Go Back</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleCancelAppointment} className="bg-destructive hover:bg-destructive/90">
+                    Yes, Cancel
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
             <Button>Reschedule</Button>
         </CardFooter>
       </Card>
