@@ -16,6 +16,8 @@ import { ChevronLeft, ChevronRight, Check, Calendar, Clock, Stethoscope, Briefca
 import { cn } from "@/lib/utils";
 import { Separator } from "@/components/ui/separator";
 import { useAppointmentStore } from "@/store/appointment";
+import { useNotificationStore } from "@/store/notifications";
+import { useUserStore } from "@/store/user";
 
 const steps = [
   { id: 'service', name: 'Service' },
@@ -86,9 +88,13 @@ function Stepper({ currentStep, steps }: { currentStep: number; steps: {id: stri
 export default function BookAppointmentForm() {
   const searchParams = useSearchParams();
   const dateParam = searchParams.get("date");
+  const isReschedule = searchParams.get("reschedule");
   const { toast } = useToast();
   const router = useRouter();
   const { setAppointment } = useAppointmentStore();
+  const { user } = useUserStore();
+  const { addNotification } = useNotificationStore();
+
 
   const [currentStep, setCurrentStep] = useState(0);
   const [date, setDate] = useState<Date | undefined>(undefined);
@@ -169,8 +175,7 @@ export default function BookAppointmentForm() {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    const newAppointment = {
-        id: `apt-${Date.now()}`,
+    const appointmentData = {
         service: getLabel(services, service),
         doctor: getLabel(doctors, doctor),
         date: date ? format(date, "yyyy-MM-dd") : 'Not selected',
@@ -178,7 +183,13 @@ export default function BookAppointmentForm() {
         notes: notes,
     };
     
-    setAppointment(newAppointment);
+    setAppointment(appointmentData);
+    
+    addNotification({
+        userId: "D0C456", // Hardcoded doctor ID for now
+        message: `New appointment request from ${user.name} for ${appointmentData.date}.`,
+        type: 'new_request'
+    })
 
     toast({
         title: "Appointment Requested!",
@@ -195,9 +206,9 @@ export default function BookAppointmentForm() {
     <div className="max-w-3xl mx-auto">
       <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-center">Request an Appointment</CardTitle>
+          <CardTitle className="font-headline text-center">{isReschedule ? "Reschedule Appointment" : "Request an Appointment"}</CardTitle>
           <CardDescription className="text-center">
-            Follow the steps to book your appointment.
+            {isReschedule ? "Please select a new date and time." : "Follow the steps to book your appointment."}
           </CardDescription>
            <div className="pt-4 pb-2">
                 <Stepper currentStep={currentStep} steps={steps} />
@@ -342,5 +353,3 @@ export default function BookAppointmentForm() {
     </div>
   );
 }
-
-    

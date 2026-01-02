@@ -24,6 +24,7 @@ import {
   ClipboardPlus,
   LogOut,
   User,
+  Bell,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,6 +37,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useUserStore } from "@/store/user";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useNotificationStore } from "@/store/notifications";
+import { Badge } from "@/components/ui/badge";
 
 const navItems = [
   { href: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -43,6 +47,50 @@ const navItems = [
   { href: "/doctor/patients", icon: Users, label: "Patients" },
   { href: "/doctor/prescriptions", icon: ClipboardPlus, label: "Prescriptions" },
 ];
+
+function NotificationsPopover() {
+    const { notifications, markAsRead } = useNotificationStore();
+    const { user } = useUserStore();
+    
+    const unreadCount = notifications.filter(n => n.userId === user.id && !n.is_read).length;
+
+    return (
+         <Popover>
+            <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                    <Bell />
+                    {unreadCount > 0 && (
+                        <Badge variant="destructive" className="absolute -top-1 -right-1 h-5 w-5 justify-center p-0">{unreadCount}</Badge>
+                    )}
+                </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+                 <div className="grid gap-4">
+                    <div className="space-y-2">
+                        <h4 className="font-medium leading-none">Notifications</h4>
+                        <p className="text-sm text-muted-foreground">
+                        Recent updates and alerts.
+                        </p>
+                    </div>
+                     <div className="grid gap-2">
+                        {notifications.filter(n => n.userId === user.id).slice(0, 5).map(n => (
+                            <div key={n.id} className="grid grid-cols-[25px_1fr] items-start pb-4 last:pb-0 last:border-b-0 border-b">
+                                <span className={`flex h-2 w-2 translate-y-1 rounded-full ${!n.is_read ? 'bg-primary' : 'bg-transparent'}`} />
+                                <div className="grid gap-1">
+                                    <p className="text-sm font-medium">{n.message}</p>
+                                    <p className="text-sm text-muted-foreground">{new Date(n.created_at).toLocaleString()}</p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                    {unreadCount > 0 && (
+                        <Button variant="link" onClick={() => markAsRead(user.id)}>Mark all as read</Button>
+                    )}
+                 </div>
+            </PopoverContent>
+        </Popover>
+    )
+}
 
 export default function DoctorLayout({
   children,
@@ -105,6 +153,7 @@ export default function DoctorLayout({
           <div className="flex-1">
             <h1 className="text-lg font-semibold font-headline">Doctor Dashboard</h1>
           </div>
+          <NotificationsPopover />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-10 w-10 rounded-full">

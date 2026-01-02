@@ -19,17 +19,30 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { CalendarPlus } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useAppointmentStore } from "@/store/appointment";
+import { Badge } from "@/components/ui/badge";
 
-
-const appointments = [
-  { id: "apt-001", date: "2024-08-15", time: "10:00 AM", doctor: "Dr. Emily Carter", type: "Cardiology Check-up", status: "Upcoming" },
-  { id: "apt-002", date: "2024-09-02", time: "02:30 PM", doctor: "Dr. Ben Adams", type: "Neurology Consultation", status: "Upcoming" },
-  { id: "apt-003", date: "2024-07-10", time: "09:00 AM", doctor: "Dr. Olivia Chen", type: "Pediatric Follow-up", status: "Completed" },
-  { id: "apt-004", date: "2024-06-20", time: "11:00 AM", doctor: "Dr. Emily Carter", type: "Annual Physical Exam", status: "Completed" },
-];
 
 export default function AppointmentsPage() {
   const router = useRouter();
+  const { appointments } = useAppointmentStore();
+  
+  const getBadgeVariant = (status: string) => {
+    switch (status) {
+      case "Accepted":
+        return "default";
+      case "Completed":
+        return "secondary";
+      case "Pending":
+        return "outline";
+      case "Reschedule_Requested":
+      case "Rejected":
+        return "destructive";
+      default:
+        return "outline";
+    }
+  };
+
 
   return (
     <Card>
@@ -56,16 +69,26 @@ export default function AppointmentsPage() {
               <TableHead>Doctor</TableHead>
               <TableHead>Reason</TableHead>
               <TableHead>Status</TableHead>
+              <TableHead className="text-right">Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {appointments.map((appt) => (
-              <TableRow key={appt.id} className="cursor-pointer" onClick={() => router.push(`/patient/appointments/${appt.id}`)}>
+              <TableRow key={appt.id} >
                 <TableCell>{appt.date}</TableCell>
                 <TableCell>{appt.time}</TableCell>
                 <TableCell>{appt.doctor}</TableCell>
-                <TableCell>{appt.type}</TableCell>
-                <TableCell>{appt.status}</TableCell>
+                <TableCell>{appt.reason}</TableCell>
+                <TableCell>
+                    <Badge variant={getBadgeVariant(appt.status)}>{appt.status.replace('_', ' ')}</Badge>
+                </TableCell>
+                <TableCell className="text-right">
+                    {appt.status === "Reschedule_Requested" ? (
+                        <Button variant="secondary" size="sm" onClick={() => router.push(`/patient/book-appointment?reschedule=true&date=${appt.date}`)}>Select New Time</Button>
+                    ) : (
+                        <Button variant="outline" size="sm" onClick={() => router.push(`/patient/appointments/${appt.id}`)}>View Details</Button>
+                    )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

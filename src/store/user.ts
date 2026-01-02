@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 
 type User = {
+  id: string;
   name: string;
   email: string;
   mobile: string;
@@ -17,12 +18,14 @@ type UserState = {
 };
 
 const initialPatient: User = {
+  id: "P00123",
   name: "Jane Doe",
   email: "jane.doe@example.com",
   mobile: "+1 234 567 890",
 };
 
 const initialDoctor: User = {
+    id: "D0C456",
     name: "Dr. Ben Adams",
     email: "b.adams@mediweb.com",
     mobile: "+1 987 654 3210"
