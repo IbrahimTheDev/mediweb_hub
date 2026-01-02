@@ -29,7 +29,7 @@ import { useRouter } from "next/navigation";
 
 const appointmentDetails = {
     id: "apt-001",
-    date: "August 15, 2024",
+    date: "2024-08-15",
     time: "10:00 AM",
     doctor: "Dr. Emily Carter",
     specialty: "Cardiology",
@@ -55,6 +55,12 @@ export default function AppointmentDetailsPage({ params }: { params: { id: strin
     router.push("/patient/appointments");
   }
 
+  const handleReschedule = () => {
+    // Navigate to the booking page with the current appointment date
+    const dateParam = new Date(date).toISOString().split('T')[0];
+    router.push(`/patient/book-appointment?date=${dateParam}`);
+  };
+
   return (
     <div className="max-w-4xl mx-auto">
       <Card>
@@ -71,7 +77,7 @@ export default function AppointmentDetailsPage({ params }: { params: { id: strin
                 <Calendar className="mr-3 mt-1 h-5 w-5 text-primary" />
                 <div>
                   <p className="font-semibold">Date</p>
-                  <p className="text-muted-foreground">{date}</p>
+                  <p className="text-muted-foreground">{new Date(date).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}</p>
                 </div>
               </div>
               <div className="flex items-start">
@@ -137,7 +143,7 @@ export default function AppointmentDetailsPage({ params }: { params: { id: strin
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-            <Button>Reschedule</Button>
+            <Button onClick={handleReschedule}>Reschedule</Button>
         </CardFooter>
       </Card>
       <div className="mt-4 text-center">
