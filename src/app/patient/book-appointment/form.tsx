@@ -134,6 +134,10 @@ export default function BookAppointmentForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (currentStep < steps.length - 1) {
+        // This case should ideally not happen if button is shown correctly
+        return;
+    }
     toast({
         title: "Appointment Requested!",
         description: `Your request has been submitted.`,
