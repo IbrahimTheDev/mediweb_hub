@@ -12,9 +12,8 @@ import { useState, useEffect } from "react";
 import { parseISO, isValid, format, getYear, getMonth, getDate, getDaysInMonth } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ChevronRight, Check, Calendar, Clock, Stethoscope, Briefcase } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Separator } from "@/components/ui/separator";
 import { useAppointmentStore } from "@/store/appointment";
 import { useNotificationStore } from "@/store/notifications";
 import { useUserStore } from "@/store/user";
@@ -22,8 +21,7 @@ import { useUserStore } from "@/store/user";
 const steps = [
   { id: 'service', name: 'Service' },
   { id: 'doctor', name: 'Doctor' },
-  { id: 'datetime', name: 'Date & Time' },
-  { id: 'details', name: 'Confirm Details' },
+  { id: 'details', name: 'Date & Details' },
 ];
 
 const services = [
@@ -155,11 +153,7 @@ export default function BookAppointmentForm() {
         toast({ variant: "destructive", title: "Please select a doctor." });
         return;
     }
-    if (currentStep === 2 && (!date || !timeSlot)) {
-        toast({ variant: "destructive", title: "Please select a date and time slot." });
-        return;
-    }
-
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(step => step + 1);
     }
@@ -174,6 +168,11 @@ export default function BookAppointmentForm() {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+     if (!date || !timeSlot) {
+        toast({ variant: "destructive", title: "Please select a date and time slot." });
+        return;
+    }
     
     const appointmentData = {
         service: getLabel(services, service),
@@ -243,8 +242,8 @@ export default function BookAppointmentForm() {
                     </div>
                 )}
                 {currentStep === 2 && (
-                    <div className="space-y-4 animate-in fade-in-50 duration-500 max-w-sm mx-auto w-full">
-                        <Label className="text-lg font-medium text-center block">Select a date and time</Label>
+                    <div className="space-y-4 animate-in fade-in-50 duration-500 max-w-lg mx-auto w-full">
+                         <Label className="text-lg font-medium text-center block">Select a date and time</Label>
                         <div className="space-y-4">
                             <div className="grid grid-cols-3 gap-2">
                                 <div className="space-y-2">
@@ -287,36 +286,7 @@ export default function BookAppointmentForm() {
                                 </Select>
                             </div>
                         </div>
-                    </div>
-                )}
-                 {currentStep === 3 && (
-                    <div className="space-y-4 animate-in fade-in-50 duration-500 max-w-lg mx-auto w-full">
-                        <Label className="text-lg font-medium text-center block">Confirm Your Appointment Details</Label>
-                        
-                        <Card className="bg-muted/50">
-                            <CardContent className="pt-6 space-y-4 text-sm">
-                                <div className="flex items-center gap-4">
-                                    <Briefcase className="h-5 w-5 text-primary"/>
-                                    <p><span className="font-semibold">Service:</span> {getLabel(services, service)}</p>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <Stethoscope className="h-5 w-5 text-primary"/>
-                                    <p><span className="font-semibold">Doctor:</span> {getLabel(doctors, doctor)}</p>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <Calendar className="h-5 w-5 text-primary"/>
-                                    <p><span className="font-semibold">Date:</span> {date ? format(date, "MMMM dd, yyyy") : 'Not selected'}</p>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <Clock className="h-5 w-5 text-primary"/>
-                                    <p><span className="font-semibold">Time:</span> {getLabel(timeSlots, timeSlot)}</p>
-                                </div>
-                            </CardContent>
-                        </Card>
-                        
-                        <Separator />
-                        
-                         <div className="space-y-2">
+                        <div className="space-y-2">
                             <Label htmlFor="notes">Additional Notes / Reason for Visit (Optional)</Label>
                             <Textarea 
                                 id="notes" 
@@ -353,3 +323,5 @@ export default function BookAppointmentForm() {
     </div>
   );
 }
+
+    
