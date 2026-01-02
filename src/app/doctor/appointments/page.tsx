@@ -22,6 +22,13 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { ChevronDown } from "lucide-react";
 
 
 type Appointment = {
@@ -30,10 +37,10 @@ type Appointment = {
   time: string;
   patient: string;
   reason: string;
-  status: string;
+  status: "Confirmed" | "Arrived" | "Pending" | "Completed";
 };
 
-const allAppointments: Appointment[] = [
+const initialAppointments: Appointment[] = [
   // Upcoming
   { patientId: "P001", date: "2024-09-15", time: "09:00 AM", patient: "John Smith", reason: "Follow-up", status: "Confirmed" },
   { patientId: "P002", date: "2024-09-16", time: "10:00 AM", patient: "Sarah Lee", reason: "New Patient Consultation", status: "Confirmed" },
@@ -45,7 +52,15 @@ const allAppointments: Appointment[] = [
   { patientId: "P001", date: "2024-08-01", time: "09:00 AM", patient: "John Smith", reason: "Initial Consultation", status: "Completed" },
 ];
 
-const AppointmentTable = ({ appointments, searchTerm }: { appointments: Appointment[], searchTerm: string }) => {
+const AppointmentTable = ({ 
+    appointments, 
+    searchTerm,
+    onStatusChange
+}: { 
+    appointments: Appointment[], 
+    searchTerm: string,
+    onStatusChange: (appointmentToUpdate: Appointment, newStatus: Appointment['status']) => void;
+}) => {
     
     const filteredAppointments = appointments.filter(appt =>
         appt.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -62,6 +77,8 @@ const AppointmentTable = ({ appointments, searchTerm }: { appointments: Appointm
         }
     };
     
+    const statusOptions: Appointment['status'][] = ["Confirmed", "Arrived", "Pending", "Completed"];
+
     return (
         <Table>
             <TableHeader>
@@ -83,9 +100,27 @@ const AppointmentTable = ({ appointments, searchTerm }: { appointments: Appointm
                     <TableCell>{appt.patient}</TableCell>
                     <TableCell>{appt.reason}</TableCell>
                     <TableCell>
-                        <Badge variant={getBadgeVariant(appt.status)}>
-                        {appt.status}
-                        </Badge>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="flex items-center gap-1">
+                                    <Badge variant={getBadgeVariant(appt.status)} className="pointer-events-none">
+                                        {appt.status}
+                                    </Badge>
+                                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                                {statusOptions.map(status => (
+                                    <DropdownMenuItem 
+                                        key={status} 
+                                        onSelect={() => onStatusChange(appt, status)}
+                                        disabled={appt.status === status}
+                                    >
+                                        {status}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
                     </TableCell>
                     <TableCell className="text-right">
                         <Button variant="outline" size="sm" asChild>
@@ -108,11 +143,22 @@ const AppointmentTable = ({ appointments, searchTerm }: { appointments: Appointm
 
 
 export default function DoctorAppointmentsPage() {
+    const [allAppointments, setAllAppointments] = React.useState<Appointment[]>(initialAppointments);
     const [searchTerm, setSearchTerm] = React.useState("");
 
     // In a real app, you would use a state management solution to get the current date
     const [today, setToday] = React.useState(new Date("2024-09-12"));
     
+    const handleStatusChange = (appointmentToUpdate: Appointment, newStatus: Appointment['status']) => {
+        setAllAppointments(currentAppointments => 
+            currentAppointments.map(appt => 
+                (appt.patientId === appointmentToUpdate.patientId && appt.date === appointmentToUpdate.date && appt.time === appointmentToUpdate.time) 
+                ? { ...appt, status: newStatus } 
+                : appt
+            )
+        );
+    };
+
     const upcomingAppointments = allAppointments.filter(appt => new Date(appt.date) > today);
     const todaysAppointments = allAppointments.filter(appt => new Date(appt.date).toDateString() === today.toDateString());
     const pastAppointments = allAppointments.filter(appt => new Date(appt.date) < today);
@@ -146,13 +192,13 @@ export default function DoctorAppointmentsPage() {
                     <TabsTrigger value="past">Past</TabsTrigger>
                 </TabsList>
                 <TabsContent value="upcoming">
-                    <AppointmentTable appointments={upcomingAppointments} searchTerm={searchTerm} />
+                    <AppointmentTable appointments={upcomingAppointments} searchTerm={searchTerm} onStatusChange={handleStatusChange} />
                 </TabsContent>
                 <TabsContent value="today">
-                    <AppointmentTable appointments={todaysAppointments} searchTerm={searchTerm} />
+                    <AppointmentTable appointments={todaysAppointments} searchTerm={searchTerm} onStatusChange={handleStatusChange} />
                 </TabsContent>
                 <TabsContent value="past">
-                    <AppointmentTable appointments={pastAppointments} searchTerm={searchTerm} />
+                    <AppointmentTable appointments={pastAppointments} searchTerm={searchTerm} onStatusChange={handleStatusChange} />
                 </TabsContent>
             </Tabs>
         </CardContent>
