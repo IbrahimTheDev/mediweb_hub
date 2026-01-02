@@ -77,7 +77,7 @@ const AppointmentTable = ({
         }
     };
     
-    const statusOptions: Appointment['status'][] = ["Confirmed", "Arrived", "Pending", "Completed"];
+    const statusOptions: Appointment['status'][] = ["Pending", "Completed"];
 
     return (
         <Table>
