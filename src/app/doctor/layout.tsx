@@ -41,7 +41,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useNotificationStore } from "@/store/notifications";
 import { Badge } from "@/components/ui/badge";
 import { useDoctorStore } from "@/store/doctor";
-import { Skeleton } from "@/components/ui/skeleton";
+import DoctorRegistrationPage from "./registration/page";
 
 const navItems = [
   { href: "/doctor/dashboard", icon: LayoutDashboard, label: "Dashboard" },
@@ -94,19 +94,6 @@ function NotificationsPopover() {
     )
 }
 
-function LoadingScreen() {
-    return (
-        <div className="flex items-center justify-center h-screen">
-            <div className="flex flex-col items-center gap-4">
-                <Logo />
-                <Skeleton className="h-4 w-48" />
-                <p className="text-sm text-muted-foreground">Verifying profile...</p>
-            </div>
-        </div>
-    )
-}
-
-
 export default function DoctorLayout({
   children,
 }: {
@@ -117,23 +104,22 @@ export default function DoctorLayout({
   const { user, avatar } = useUserStore();
   const { doctors } = useDoctorStore();
   
-  const [isVerified, setIsVerified] = React.useState(false);
+  const [isRegistered, setIsRegistered] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
 
   React.useEffect(() => {
     // This logic should be on the client to access the store
-    const isRegistered = doctors.some(doc => doc.name === user.name);
+    const isDocRegistered = doctors.some(doc => doc.name === user.name);
 
     if (pathname === '/doctor/registration') {
-        setIsVerified(true);
-        return;
-    }
-    
-    if (!isRegistered) {
+        setIsRegistered(false); // Stay on registration page
+    } else if (!isDocRegistered) {
         router.replace('/doctor/registration');
     } else {
-        setIsVerified(true);
+        setIsRegistered(true);
     }
+    setIsLoading(false);
   }, [pathname, router, doctors, user.name]);
 
 
@@ -144,8 +130,14 @@ export default function DoctorLayout({
     return pathname.startsWith(href);
   };
   
-  if (!isVerified) {
-    return <LoadingScreen />;
+  if (isLoading) {
+    // You can return a global loading screen here
+    return <div>Loading...</div>
+  }
+
+  if (!isRegistered) {
+      // Render the registration page without the main layout
+      return <DoctorRegistrationPage />;
   }
 
   return (
